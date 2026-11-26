@@ -370,6 +370,28 @@ textarea{resize:vertical;min-height:70px;line-height:1.45}
 .auth-alt{justify-content:center;background:transparent;color:var(--ink)}
 .auth-or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px}
 .auth-or::before,.auth-or::after{content:"";flex:1;height:1px;background:var(--line)}
+/* modo janela: trocar senha com o painel ao fundo */
+.auth.modal{background:rgba(8,8,9,.72);backdrop-filter:blur(6px)}
+.auth.modal::before,.auth.modal::after{display:none}
+.auth-close{position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font-size:20px;line-height:1;display:grid;place-items:center;transition:transform .3s,border-color .2s}
+.auth-close:hover{transform:rotate(90deg);border-color:var(--accent)}
+.auth:not(.modal) .auth-close{display:none}
+/* usuário logado no topo */
+.acct-wrap{position:relative;flex:none}
+.user-chip{display:flex;align-items:center;gap:9px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--on-forest);border-radius:999px;padding:4px 12px 4px 4px;transition:background .2s,border-color .2s}
+.user-chip:hover,.user-chip[aria-expanded="true"]{background:rgba(255,255,255,.1);border-color:rgba(246,165,36,.5)}
+.avatar{width:30px;height:30px;border-radius:50%;background:var(--brand-grad);color:var(--lime-ink);display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:14px;flex:none}
+.u-text{display:grid;line-height:1.15;text-align:left}
+.u-text b{font-size:calc(13px * var(--fs));font-weight:600;white-space:nowrap}
+.u-text small{font-size:calc(10.5px * var(--fs));letter-spacing:.12em;text-transform:uppercase;color:var(--lime);font-weight:600}
+.caret{font-size:11px;color:var(--on-forest-muted)}
+.user-menu{position:absolute;right:0;top:calc(100% + 8px);min-width:230px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow-hi);padding:6px;display:grid;gap:2px;z-index:70;animation:rise .25s cubic-bezier(.2,.8,.2,1) both}
+.um-head{padding:8px 10px 10px;border-bottom:1px solid var(--line);margin-bottom:4px;display:grid;gap:2px;font-size:calc(13px * var(--fs));overflow-wrap:anywhere}
+.um-label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.user-menu button{border:0;background:transparent;color:var(--ink);text-align:left;padding:9px 10px;border-radius:9px;font-size:calc(14px * var(--fs));transition:background .2s}
+.user-menu button:hover{background:var(--surface-2)}
+#logout-btn{color:var(--bad)}
+@media (max-width:560px){.u-text,.caret{display:none}.user-chip{padding:3px}}
 .auth-msg{margin:0;min-height:1.2em;font-size:calc(13.5px * var(--fs,1.15));color:var(--warn)}
 .auth-msg.ok{color:var(--ok)}
 #denied p{margin:0;color:var(--muted)}
@@ -459,7 +481,18 @@ main{position:relative;z-index:1}
       <button class="tab" role="tab" data-v="rituais">Rituais</button>
     </nav>
     <div class="fs-ctl" role="group" aria-label="Tamanho do texto"><button id="fs-down" aria-label="Diminuir o texto">A−</button><button id="fs-up" aria-label="Aumentar o texto">A+</button></div>
-    <div class="fs-ctl acct" id="acct" hidden><button id="pw-btn" title="Definir ou trocar a senha">Senha</button><button id="logout-btn">Sair</button></div>
+    <div class="acct-wrap" id="acct" hidden>
+      <button class="user-chip" id="user-chip" aria-haspopup="menu" aria-expanded="false" aria-controls="user-menu">
+        <span class="avatar" id="u-avatar" aria-hidden="true">·</span>
+        <span class="u-text"><b id="u-name">…</b><small id="u-role"></small></span>
+        <span class="caret" aria-hidden="true">▾</span>
+      </button>
+      <div class="user-menu" id="user-menu" role="menu" hidden>
+        <div class="um-head"><span class="um-label">Conectado como</span><span id="u-email"></span></div>
+        <button role="menuitem" id="pw-btn">Trocar senha</button>
+        <button role="menuitem" id="logout-btn">Sair</button>
+      </div>
+    </div>
     <div class="sync" id="sync" data-s="ok"><i></i><span id="sync-t">Conectando…</span></div>
   </div>
 </header>
@@ -495,6 +528,7 @@ main{position:relative;z-index:1}
 <div class="toast" id="toast" role="status"></div>
 <div class="auth" id="auth">
   <div class="auth-card">
+    <button class="auth-close" type="button" id="auth-close" aria-label="Fechar e voltar ao painel">×</button>
     <div class="auth-brand">
       <svg class="ag-mark" viewBox="20 30 620 405" aria-hidden="true"><circle cx="68" cy="393" r="40"/><path d="M178 42H262L412 425H325Z"/><path d="M365 48C452 30 542 52 594 110L540 160C500 118 440 103 378 114Z"/><path d="M430 228H630C630 322 585 397 500 422L487 356C530 340 552 318 561 292H455Z"/></svg>
       <span class="ag-word">Adriano<br>Gianini</span>
@@ -516,7 +550,7 @@ main{position:relative;z-index:1}
       <label class="field">Nova senha<input type="password" id="pw-new" autocomplete="new-password" minlength="8"></label>
       <label class="field">Repita a senha<input type="password" id="pw-new2" autocomplete="new-password" minlength="8"></label>
       <button class="btn btn-lime auth-main" type="submit" id="pw-save">Salvar senha</button>
-      <button class="btn auth-alt" type="button" id="pw-skip">Agora não</button>
+      <button class="btn auth-alt" type="button" id="pw-skip">← Voltar ao painel</button>
     </form>
 
     <div id="denied" hidden>
@@ -950,7 +984,7 @@ async function resolveNames(){
   const spans=$$("[data-uid]",$("#drawer"));if(!spans.length)return;
   const ids=[...new Set(spans.map(s=>s.dataset.uid).filter(Boolean))];
   if(userApi&&Store.mode==="db"){try{const ps=await userApi.profiles(ids);spans.forEach(s=>{const p=ps[s.dataset.uid];s.textContent=p&&p.isMe?"Você":(p&&p.name)||"Alguém";});return;}catch(e){}}
-  spans.forEach(s=>{const u=s.dataset.uid||"";s.textContent=u===me.id?"Você":u.includes("@")?u.split("@")[0].replace(/[._-]+/g," ").replace(/\b\w/g,c=>c.toUpperCase()):"Alguém";});
+  spans.forEach(s=>{const u=s.dataset.uid||"";const t=typeof TEAM!=="undefined"&&TEAM[u.toLowerCase()];s.textContent=u===me.id?"Você":t&&t.name?t.name:u.includes("@")?u.split("@")[0].replace(/[._-]+/g," ").replace(/\b\w/g,c=>c.toUpperCase()):"Alguém";});
 }
 function updEpic(id,fn){const e=clone(S.epics[id]);fn(e);e.updatedAt=new Date().toISOString();S.epics[id]=e;Store.save("epics",id,e);schedule();}
 function setStatus(id,st){
@@ -1110,7 +1144,28 @@ const SB_KEY="sb_publishable_EndGQXiOibfrIPNYxzMaVw_bCnKxvya";
 const CAME_FROM_LINK=/type=(invite|recovery|signup)/.test(location.hash);
 let sb=null,session=null,started=false;
 function authMsg(t,ok){const m=$("#auth-msg");m.textContent=t||"";m.classList.toggle("ok",!!ok);}
+let TEAM={};
+const loggedIn=()=>started&&Store.mode==="db";
+function closeAuth(fromPop){
+  if(!loggedIn()){authView("login");return;}
+  $("#auth").hidden=true;$("#auth").classList.remove("modal");
+  $("#pw-new").value="";$("#pw-new2").value="";authMsg("");
+  if(!fromPop&&history.state&&history.state.pw){try{history.back();}catch(e){}}
+}
+function openPasswordModal(){
+  closeUserMenu();
+  try{history.pushState({pw:1},"",location.href);}catch(e){}
+  $("#auth").classList.add("modal");authView("password","Digite a nova senha duas vezes.",true);
+}
+function closeUserMenu(){const m=$("#user-menu");if(m){m.hidden=true;$("#user-chip").setAttribute("aria-expanded","false");}}
+function fillUser(email){
+  const p=TEAM[email.toLowerCase()]||{};const name=p.name||email.split("@")[0];
+  $("#u-name").textContent=name;$("#u-role").textContent=p.role||"";$("#u-email").textContent=email;
+  $("#u-avatar").textContent=(name.trim()[0]||"?").toUpperCase();
+  $("#user-chip").title=name+(p.role?" · "+p.role:"")+" — "+email;
+}
 function authView(mode,msg,ok){
+  if(mode!=="password")$("#auth").classList.remove("modal");
   $("#auth").hidden=false;$("#auth-loading").hidden=mode!=="loading";
   $("#login-form").hidden=mode!=="login";$("#pw-form").hidden=mode!=="password";$("#denied").hidden=mode!=="denied";
   authMsg(msg,ok);
@@ -1134,8 +1189,10 @@ async function start(){
   Store.mode="db";
   Store.db={doc:k=>{const p=k.split("/");return{set:d=>sbSet(p[0],p[1],d),delete:()=>sbDel(p[0],p[1])};}};
   canWrite=true;document.body.classList.remove("ro");
+  try{const {data:tm}=await sb.rpc("team");TEAM={};(tm||[]).forEach(r=>{TEAM[String(r.email).toLowerCase()]={name:r.name,role:r.role};});}catch(e){}
+  fillUser(email);
   $("#acct").hidden=false;setSync("ok");
-  if(CAME_FROM_LINK)authView("password","Bem-vindo! Crie uma senha para entrar mais rápido das próximas vezes.",true);
+  if(CAME_FROM_LINK){$("#auth").classList.add("modal");authView("password","Bem-vindo! Crie uma senha para entrar mais rápido das próximas vezes.",true);}
   else $("#auth").hidden=true;
   const timer=setTimeout(()=>{if(!S.confirmed){S.timedOut=true;schedule();}},10000);
   await loadAll();clearTimeout(timer);
@@ -1190,10 +1247,16 @@ function bindAuth(){
     const b=$("#pw-save");b.disabled=true;
     const {error}=await sb.auth.updateUser({password:a});b.disabled=false;
     if(error){authMsg("Não consegui salvar a senha: "+error.message);return;}
-    $("#pw-new").value="";$("#pw-new2").value="";$("#auth").hidden=true;toast("Senha salva. Nas próximas vezes, entre com e-mail e senha.");
+    closeAuth();toast("Senha salva. Nas próximas vezes, entre com e-mail e senha.");
   });
-  $("#pw-skip").addEventListener("click",()=>{if(session)$("#auth").hidden=true;else authView("login");});
-  $("#pw-btn").addEventListener("click",()=>authView("password","Defina uma nova senha de acesso."));
+  $("#pw-skip").addEventListener("click",()=>closeAuth());
+  $("#auth-close").addEventListener("click",()=>closeAuth());
+  $("#pw-btn").addEventListener("click",openPasswordModal);
+  $("#auth").addEventListener("click",e=>{if(e.target===$("#auth")&&$("#auth").classList.contains("modal"))closeAuth();});
+  window.addEventListener("popstate",()=>{if(!$("#auth").hidden&&$("#auth").classList.contains("modal"))closeAuth(true);});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(!$("#auth").hidden&&$("#auth").classList.contains("modal"))closeAuth();closeUserMenu();}});
+  $("#user-chip").addEventListener("click",e=>{e.stopPropagation();const m=$("#user-menu");m.hidden=!m.hidden;$("#user-chip").setAttribute("aria-expanded",String(!m.hidden));});
+  document.addEventListener("click",e=>{if(!e.target.closest("#acct"))closeUserMenu();});
   const out=async()=>{try{await sb.auth.signOut();}catch(e){}location.reload();};
   $("#logout-btn").addEventListener("click",out);$("#denied-out").addEventListener("click",out);
 }
