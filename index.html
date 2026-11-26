@@ -227,6 +227,53 @@ main{padding-block:26px 80px}
 .today::before{content:attr(data-l);position:absolute;top:-1px;left:4px;font-size:calc(10px * var(--fs));font-weight:700;color:#fff;background:var(--bad);padding:1px 6px;border-radius:4px;white-space:nowrap}
 
 /* ---------- quadro ---------- */
+/* quadro kanban: 6 colunas que cabem na tela, cartões compactos */
+.k-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:14px}
+.k-filters{display:flex;flex-wrap:wrap;gap:6px}
+.k-chip{border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:6px 12px;font-size:calc(12.5px * var(--fs));font-weight:600;transition:all .2s}
+.k-chip:hover{color:var(--ink);border-color:var(--sage)}
+.k-chip[aria-pressed="true"]{background:var(--brand-grad);color:var(--lime-ink);border-color:transparent}
+.k-flow{display:flex;height:10px;border-radius:999px;overflow:hidden;background:var(--surface-2);margin-bottom:6px}
+.k-flow i{display:block;height:100%;transition:width .8s cubic-bezier(.2,.8,.2,1)}
+.k-flow-legend{display:flex;flex-wrap:wrap;gap:12px;font-size:calc(12px * var(--fs));color:var(--muted);margin-bottom:16px}
+.k-flow-legend span{display:inline-flex;align-items:center;gap:6px}
+.k-flow-legend i{width:8px;height:8px;border-radius:2px}
+.kboard-scroll{overflow-x:auto;padding-bottom:6px;scroll-snap-type:x proximity}
+.kboard{display:grid;grid-template-columns:repeat(6,minmax(190px,1fr));gap:10px;align-items:stretch;min-width:min-content}
+.kcol{--c:var(--muted);display:flex;flex-direction:column;background:var(--surface-2);border:1px solid var(--line);border-top:3px solid var(--c);border-radius:14px;min-height:min(62vh,560px);max-height:calc(100vh - 150px);scroll-snap-align:start;transition:background .25s,border-color .25s,box-shadow .25s}
+.kcol.drag-over{background:color-mix(in srgb,var(--c) 14%,var(--surface-2));border-color:var(--c);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 25%,transparent)}
+.kcol-head{padding:10px 10px 8px;display:grid;gap:2px}
+.kcol-title{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.kcol-title h3{font-size:calc(13.5px * var(--fs));font-weight:600;letter-spacing:0;display:flex;align-items:center;gap:7px;white-space:nowrap}
+.kcol-title h3 i{width:8px;height:8px;border-radius:50%;background:var(--c);box-shadow:0 0 8px var(--c)}
+.kcount{font-family:var(--f-mono);font-size:calc(11.5px * var(--fs));background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:1px 8px;color:var(--muted)}
+.kcount.over{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.kcol-sub{font-size:calc(11.5px * var(--fs));color:var(--muted)}
+.kcol-list{flex:1;min-height:0;overflow-y:auto;padding:4px 8px 10px;display:flex;flex-direction:column;gap:8px;scrollbar-width:thin}
+.kcol-list>*{flex:none}
+.k-empty{border:1.5px dashed var(--line);border-radius:12px;min-height:86px;display:grid;place-items:center;text-align:center;padding:10px;font-size:calc(12px * var(--fs));color:var(--muted)}
+.kcard{position:relative;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 10px 9px;display:grid;gap:7px;text-align:left;cursor:grab;min-height:118px;box-shadow:var(--shadow);transition:transform .25s,box-shadow .25s,opacity .25s,border-color .25s}
+.kcard::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--hc,var(--line))}
+.kcard:hover{transform:translateY(-3px);box-shadow:var(--shadow-hi);border-color:color-mix(in srgb,var(--c) 60%,var(--line))}
+.kcard.dragging{opacity:.4;transform:rotate(3deg) scale(.97)}
+.kcard:active{cursor:grabbing}
+.k-top{display:flex;align-items:center;gap:6px}
+.k-top .pri{font-size:calc(10.5px * var(--fs));padding:1px 6px}
+.k-phase{font-family:var(--f-mono);font-size:calc(10.5px * var(--fs));color:var(--muted)}
+.k-health{margin-left:auto;font-size:calc(10.5px * var(--fs));font-weight:600;color:var(--hc,var(--muted));white-space:nowrap}
+.kcard h4{font-family:var(--f-display);font-size:calc(13.5px * var(--fs));font-weight:500;letter-spacing:0;line-height:1.25;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.k-dots{display:flex;gap:3px;flex-wrap:wrap}
+.k-dots i{width:14px;height:4px;border-radius:2px;background:var(--line)}
+.k-dots i.on{background:var(--brand-grad)}
+.k-foot{display:flex;align-items:center;gap:7px;font-size:calc(11.5px * var(--fs));color:var(--muted)}
+.k-ring{width:22px;height:22px;flex:none;transform:rotate(-90deg)}
+.k-ring circle{fill:none;stroke-width:3.5}
+.k-ring .t{stroke:var(--line)}
+.k-ring .v{stroke:var(--accent);stroke-linecap:round}
+.k-due{margin-left:auto;font-family:var(--f-mono)}
+.k-due.late{color:var(--bad)}
+.k-owner{width:20px;height:20px;border-radius:50%;background:var(--surface-2);border:1px solid var(--line);display:grid;place-items:center;font-size:10px;font-weight:700;color:var(--ink)}
+.h-blocked{background:var(--bad-soft);color:var(--bad)}
 .board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:start}
 .col{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:12px;min-height:200px;transition:background .25s,border-color .25s}
 .col.drag-over{background:color-mix(in srgb,var(--lime) 20%,var(--surface-2));border-color:var(--accent)}
@@ -313,6 +360,7 @@ td:first-child{font-weight:700;font-family:var(--f-display)}
 .field input:focus,.field select:focus,.field textarea:focus,.inp:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--lime) 40%,transparent)}
 textarea{resize:vertical;min-height:70px;line-height:1.45}
 .seg{display:flex;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:3px;gap:3px}
+.seg.seg6{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
 .seg button{flex:1;border:0;background:transparent;border-radius:7px;padding:7px 8px;font-size:calc(13px * var(--fs));font-weight:600;color:var(--muted);transition:background .25s,color .25s}
 .seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
 .deliver{border-left:3px solid var(--accent);background:var(--sage-soft);border-radius:0 10px 10px 0;padding:10px 12px}
@@ -410,12 +458,12 @@ main{position:relative;z-index:1}
 @keyframes scan{from{background-position:0 -180px}to{background-position:0 calc(100% + 180px)}}
 
 .phase-node,.epic-node,.card,.kpi,.mini-epic,.root-node,.stat,.panel{position:relative}
-.phase-node::after,.epic-node::after,.card::after,.kpi::after,.mini-epic::after,.root-node::after,.stat::after,.panel::after{
+.phase-node::after,.epic-node::after,.card::after,.kcard::after,.kpi::after,.mini-epic::after,.root-node::after,.stat::after,.panel::after{
   content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1.5px;pointer-events:none;
   background:conic-gradient(from var(--ang),transparent 0deg 240deg,rgba(255,198,46,.95) 300deg,#ea7c18 338deg,transparent 360deg);
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);
   opacity:0;transition:opacity .35s;animation:spin 2.8s linear infinite paused}
-.phase-node:hover::after,.epic-node:hover::after,.card:hover::after,.kpi:hover::after,.mini-epic:hover::after,.root-node:hover::after,.stat:hover::after,.panel:hover::after,
+.phase-node:hover::after,.epic-node:hover::after,.card:hover::after,.kcard:hover::after,.kpi:hover::after,.mini-epic:hover::after,.root-node:hover::after,.stat:hover::after,.panel:hover::after,
 .phase-node.current::after,.epic-node.is-live::after{opacity:1;animation-play-state:running}
 @keyframes spin{to{--ang:360deg}}
 
@@ -453,6 +501,7 @@ main{position:relative;z-index:1}
   .stats{grid-template-columns:repeat(3,minmax(0,1fr))}
   .phase-cols{grid-template-columns:1fr}
   .board{grid-template-columns:1fr}
+  .kcol{max-height:none;min-height:320px}
   .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
   .m-grid,.m-grid2,.rit{grid-template-columns:1fr}
 }
@@ -684,6 +733,7 @@ function allEpics(){return phasesSorted().flatMap(p=>epicsOf(p.id)).concat(Objec
 function prog(e){if(e.status==="done")return 1;const t=e.tasks||[];if(!t.length)return e.status==="doing"?.1:0;return t.filter(x=>x.done).length/t.length;}
 function health(e){
   const p=prog(e);if(e.status==="done"||p>=1)return"done";
+  if(e.status==="blocked")return"blocked";
   const cd=curDay();if(cd==null)return"planned";
   if(cd<e.startDay)return"upcoming";
   if(cd>e.dueDay)return"late";
@@ -691,16 +741,25 @@ function health(e){
   if(elapsed-p>.4||(e.dueDay-cd<=3&&p<.75))return"risk";
   return"ontrack";
 }
-const HL={done:"Concluída",ontrack:"No prazo",risk:"Em risco",late:"Atrasada",upcoming:"Próxima",planned:"Planejada"};
-const ST={todo:"A fazer",doing:"Fazendo",done:"Feito"};
+const HL={done:"Concluída",ontrack:"No prazo",risk:"Em risco",late:"Atrasada",upcoming:"Próxima",planned:"Planejada",blocked:"Bloqueada"};
+const ST={backlog:"Backlog",todo:"A fazer",doing:"Em andamento",review:"Em validação",blocked:"Bloqueado",done:"Concluído"};
+const KCOLS=[
+  {k:"backlog",c:"#7a756d",sub:"Ainda não priorizado"},
+  {k:"todo",c:"#c9c3b8",sub:"Planejado para o sprint"},
+  {k:"doing",c:"#f6a524",sub:"Limite de 3 em paralelo",wip:3},
+  {k:"review",c:"#ee7a45",sub:"Aguardando validação"},
+  {k:"blocked",c:"#ef7b62",sub:"Precisa de decisão ou ajuda"},
+  {k:"done",c:"#5cc27e",sub:"Entregue e aprovado"}];
+const HCOL={done:"var(--ok)",ontrack:"var(--info)",risk:"var(--warn)",late:"var(--bad)",blocked:"var(--bad)",upcoming:"var(--line)",planned:"var(--line)"};
+let boardPhase="all",boardSprint=false;
 function phaseProg(pid){const es=epicsOf(pid);if(!es.length)return 0;let t=0,d=0;es.forEach(e=>{const n=(e.tasks||[]).length||1;t+=n;d+=prog(e)*n;});return d/t;}
-function totals(){let t=0,d=0,n=0,ed=0;const h={done:0,ontrack:0,risk:0,late:0,upcoming:0,planned:0};
+function totals(){let t=0,d=0,n=0,ed=0;const h={done:0,ontrack:0,risk:0,late:0,blocked:0,upcoming:0,planned:0};
   allEpics().forEach(e=>{n++;const k=health(e);h[k]++;if(k==="done")ed++;const ts=e.tasks||[];t+=ts.length;d+=e.status==="done"?ts.length:ts.filter(x=>x.done).length;});
   return{tasks:t,done:d,epics:n,epicsDone:ed,h,pct:t?d/t:0};}
 function currentPhase(){const cd=curDay();if(cd==null)return null;return phasesSorted().find(p=>cd>=p.startDay&&cd<=p.endDay)||null;}
 
 /* ---------------- render ---------------- */
-let raf=0;function schedule(){if(raf)return;raf=requestAnimationFrame(()=>{raf=0;renderAll();});}
+let raf=0;function schedule(){if(raf)return;const run=()=>{if(!raf)return;cancelAnimationFrame(raf);raf=0;renderAll();};raf=requestAnimationFrame(run);setTimeout(run,150);}
 function renderAll(){
   renderClock(false);renderStats();renderView();
   if(drawerState){const a=document.activeElement;if(!a||!$("#drawer").contains(a)||a.tagName==="BUTTON")renderDrawer();}
@@ -772,7 +831,7 @@ function renderView(){
   if(changed&&m.firstElementChild){
     m.firstElementChild.classList.add("enter");
     if(!REDUCED){
-      $$(".phase-node,.epic-node,.add-node,.root-node,.card,.kpi,.panel,.tl-row,.mini-epic,.deliv li,.align-item,.col",m).forEach((el,i)=>{el.style.setProperty("--i",Math.min(i,26));el.classList.add("stagger");});
+      $$(".phase-node,.epic-node,.add-node,.root-node,.card,.kcard,.kcol,.kpi,.panel,.tl-row,.mini-epic,.deliv li,.align-item,.col",m).forEach((el,i)=>{el.style.setProperty("--i",Math.min(i,26));el.classList.add("stagger");});
       scramble($(".view-head h2",m));
       if(view==="mapa")setTimeout(drawWires,1500);
     }
@@ -853,25 +912,45 @@ function renderTimeline(m){
 
 /* ---- quadro ---- */
 function renderBoard(m){
-  const cols=[["todo","A fazer","var(--muted)"],["doing","Fazendo","var(--info)"],["done","Feito","var(--ok)"]];
-  const es=allEpics();
-  m.innerHTML=`<section class="view"><div class="view-head"><div><h2>Quadro do sprint</h2><p>Arraste as etapas entre as colunas para mudar o status. Ao mover para Feito, todas as ações da etapa são marcadas.</p></div></div>
-    <div class="board">${cols.map(([k,l,c])=>{const list=es.filter(e=>(e.status||"todo")===k);
-      return `<div class="col" data-col="${k}"><div class="col-head"><h3><i style="background:${c}"></i>${l}</h3><span class="mono hint">${list.length}</span></div>
-        <div class="col-list">${list.map(e=>{const h=health(e);const ph=S.phases[e.phase];
-          return `<div class="card" draggable="${canWrite}" data-id="${esc(e.id)}" data-open="epic:${esc(e.id)}" tabindex="0" role="button">
-            <div class="meta"><span class="pri pri-${esc(e.priority)}">${esc(e.priority)}</span><span class="chip h-${h}"><i></i>${HL[h]}</span></div>
-            <h4>${esc(e.title)}</h4>
-            <div class="pbar"><i style="width:${prog(e)*100}%"></i></div>
-            <div class="meta"><span>${ph?esc(ph.name):""}</span><span>·</span><span class="mono">até ${dayLabel(e.dueDay)}</span>${e.owner?`<span>·</span><span>${esc(e.owner)}</span>`:""}</div></div>`;}).join("")||'<p class="hint" style="padding:8px">Nada aqui.</p>'}</div></div>`;}).join("")}</div></section>`;
-  $$(".card",m).forEach(c=>{
-    c.addEventListener("dragstart",ev=>{ev.dataTransfer.setData("text/plain",c.dataset.id);c.classList.add("dragging");});
-    c.addEventListener("dragend",()=>c.classList.remove("dragging"));
+  const cd=curDay();
+  const curSpr=cd!=null&&cd>=1&&cd<=TOTAL()?sprintRange(sprintOf(cd)):null;
+  const all=allEpics();
+  const es=all.filter(e=>(boardPhase==="all"||e.phase===boardPhase)&&(!boardSprint||!curSpr||(e.startDay<=curSpr[1]&&e.dueDay>=curSpr[0])))
+    .sort((a,b)=>(a.dueDay-b.dueDay)||(String(a.priority).localeCompare(String(b.priority))));
+  const statusOf=e=>ST[e.status]?e.status:"todo";
+  const counts={};KCOLS.forEach(c=>counts[c.k]=es.filter(e=>statusOf(e)===c.k).length);
+  const total=es.length||1;
+  const ring=p=>{const C=2*Math.PI*8;return `<svg class="k-ring" viewBox="0 0 22 22" aria-hidden="true"><circle class="t" cx="11" cy="11" r="8"/><circle class="v" cx="11" cy="11" r="8" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-p)}"/></svg>`;};
+  const card=(e,col)=>{const h=health(e);const p=prog(e);const ts=e.tasks||[];const ph=S.phases[e.phase];
+    const left=cd==null?null:e.dueDay-cd;const late=h==="late";
+    return `<div class="kcard" draggable="${canWrite}" data-id="${esc(e.id)}" data-open="epic:${esc(e.id)}" tabindex="0" role="button" style="--c:${col.c};--hc:${HCOL[h]}" title="${esc(e.title)} · ${HL[h]}">
+      <div class="k-top"><span class="pri pri-${esc(e.priority)}">${esc(e.priority)}</span><span class="k-phase">${ph?esc(ph.code||""):""}</span><span class="k-health">${HL[h]}</span></div>
+      <h4>${esc(e.title)}</h4>
+      ${ts.length?`<div class="k-dots" aria-label="${ts.filter(t=>t.done).length} de ${ts.length} ações">${ts.map(t=>`<i class="${t.done||e.status==="done"?"on":""}"></i>`).join("")}</div>`:""}
+      <div class="k-foot">${ring(p)}<span class="mono">${Math.round(p*100)}%</span>${e.owner?`<span class="k-owner" title="${esc(e.owner)}">${esc(e.owner.trim()[0]||"").toUpperCase()}</span>`:""}<span class="k-due ${late?"late":""}">${left==null?dayLabel(e.dueDay):late?Math.abs(left)+"d atraso":left===0?"hoje":dayLabel(e.dueDay)}</span></div>
+    </div>`;};
+  m.innerHTML=`<section class="view"><div class="view-head"><div><h2>Quadro Kanban</h2><p>Arraste os cartões pelas seis etapas do fluxo. Ao chegar em Concluído, todas as ações da etapa são marcadas.</p></div></div>
+    <div class="k-toolbar"><div class="k-filters" role="group" aria-label="Filtrar por fase">
+      <button class="k-chip" data-kf="all" aria-pressed="${boardPhase==="all"}">Todas as fases</button>
+      ${phasesSorted().map(p=>`<button class="k-chip" data-kf="${esc(p.id)}" aria-pressed="${boardPhase===p.id}">${esc((p.code||"")+" "+p.name)}</button>`).join("")}
+    </div>${curSpr?`<button class="k-chip" id="k-sprint" aria-pressed="${boardSprint}">Só o sprint atual (${sprintOf(cd)})</button>`:""}</div>
+    <div class="k-flow" role="img" aria-label="Distribuição das etapas pelo fluxo">${KCOLS.map(c=>`<i style="width:${counts[c.k]/total*100}%;background:${c.c}" title="${ST[c.k]}: ${counts[c.k]}"></i>`).join("")}</div>
+    <div class="k-flow-legend">${KCOLS.map(c=>`<span><i style="background:${c.c}"></i>${ST[c.k]} <b class="mono">${counts[c.k]}</b></span>`).join("")}<span>· ${es.length} etapa${es.length===1?"":"s"} no filtro</span></div>
+    <div class="kboard-scroll"><div class="kboard">${KCOLS.map(col=>{const list=es.filter(e=>statusOf(e)===col.k);const over=col.wip&&list.length>col.wip;
+      return `<div class="kcol" data-col="${col.k}" style="--c:${col.c}">
+        <div class="kcol-head"><div class="kcol-title"><h3><i></i>${ST[col.k]}</h3><span class="kcount ${over?"over":""}" title="${over?"Acima do limite recomendado":""}">${list.length}${col.wip?"/"+col.wip:""}</span></div><span class="kcol-sub">${col.sub}</span></div>
+        <div class="kcol-list">${list.map(e=>card(e,col)).join("")||`<div class="k-empty">Arraste uma etapa para cá</div>`}</div></div>`;}).join("")}</div></div></section>`;
+  $$("[data-kf]",m).forEach(b=>b.onclick=()=>{boardPhase=b.dataset.kf;renderBoard(m);});
+  const ks=$("#k-sprint",m);if(ks)ks.onclick=()=>{boardSprint=!boardSprint;renderBoard(m);};
+  $$(".kcard",m).forEach(c=>{
+    c.addEventListener("dragstart",ev=>{ev.dataTransfer.setData("text/plain",c.dataset.id);ev.dataTransfer.effectAllowed="move";c.classList.add("dragging");});
+    c.addEventListener("dragend",()=>{c.classList.remove("dragging");$$(".kcol.drag-over",m).forEach(x=>x.classList.remove("drag-over"));});
   });
-  $$(".col",m).forEach(col=>{
-    col.addEventListener("dragover",ev=>{ev.preventDefault();col.classList.add("drag-over");});
-    col.addEventListener("dragleave",()=>col.classList.remove("drag-over"));
-    col.addEventListener("drop",ev=>{ev.preventDefault();col.classList.remove("drag-over");const id=ev.dataTransfer.getData("text/plain");if(id&&S.epics[id])setStatus(id,col.dataset.col);});
+  $$(".kcol",m).forEach(col=>{
+    col.addEventListener("dragover",ev=>{ev.preventDefault();ev.dataTransfer.dropEffect="move";col.classList.add("drag-over");});
+    col.addEventListener("dragleave",ev=>{if(!col.contains(ev.relatedTarget))col.classList.remove("drag-over");});
+    col.addEventListener("drop",ev=>{ev.preventDefault();col.classList.remove("drag-over");const id=ev.dataTransfer.getData("text/plain");
+      if(id&&S.epics[id]&&(S.epics[id].status||"todo")!==col.dataset.col)setStatus(id,col.dataset.col);});
   });
 }
 
@@ -1009,7 +1088,7 @@ function drawEpic(d,id){
     <div class="pbar"><i style="width:${pr*100}%"></i></div>
   </div>
   <div class="d-body">
-    <div class="d-sec"><h4>Status</h4><div class="seg" role="group" aria-label="Status">${Object.entries(ST).map(([k,l])=>`<button data-st="${k}" aria-pressed="${(e.status||"todo")===k}" ${canWrite?"":"disabled"}>${l}</button>`).join("")}</div></div>
+    <div class="d-sec"><h4>Status</h4><div class="seg seg6" role="group" aria-label="Status">${Object.entries(ST).map(([k,l])=>`<button data-st="${k}" aria-pressed="${(e.status||"todo")===k}" ${canWrite?"":"disabled"}>${l}</button>`).join("")}</div></div>
     <div class="d-sec"><h4>Entrega</h4><div class="deliver"><div class="eyebrow">Ao final desta etapa</div><input id="f-delivery" value="${esc(e.delivery||"")}" placeholder="O que fica pronto" ${canWrite?"":"readonly"}></div></div>
     <div class="d-sec"><h4>Ações (subetapas) <span class="mono">${(e.tasks||[]).filter(t=>t.done).length}/${(e.tasks||[]).length}</span></h4>
       <div class="tasks">${(e.tasks||[]).map(t=>`<div class="task ${t.done?"done":""}"><button class="cb" data-tk="${esc(t.id)}" aria-label="${t.done?"Desmarcar":"Marcar"} ação" ${canWrite?"":"disabled"}>✓</button><input class="t" data-tt="${esc(t.id)}" value="${esc(t.text)}" ${canWrite?"":"readonly"} aria-label="Texto da ação"><button class="rm edit-only" data-trm="${esc(t.id)}" aria-label="Remover ação">×</button></div>`).join("")}</div>
@@ -1037,7 +1116,7 @@ function drawEpic(d,id){
       const all=x.tasks.length&&x.tasks.every(k=>k.done);
       if(all){x.status="done";x.doneAt=new Date().toISOString();}
       else if(x.status==="done"){x.status="doing";delete x.doneAt;}
-      else if(x.tasks.some(k=>k.done)&&(x.status||"todo")==="todo")x.status="doing";});
+      else if(x.tasks.some(k=>k.done)&&["todo","backlog"].includes(x.status||"todo"))x.status="doing";});
     renderDrawer();const pb=$(`[data-tk="${CSS.escape(b.dataset.tk)}"]`,d);if(pb)pb.classList.add("pop");const e2=S.epics[id];if(e2.status==="done")toast("Etapa concluída. Boa!");});
   $$("[data-tt]",d).forEach(inp=>inp.onchange=()=>{const v=inp.value.trim();if(!v)return;updEpic(id,x=>{x.tasks.find(k=>k.id===inp.dataset.tt).text=v;});});
   $$("[data-trm]",d).forEach(b=>b.onclick=()=>{updEpic(id,x=>{x.tasks=x.tasks.filter(k=>k.id!==b.dataset.trm);});renderDrawer();});
