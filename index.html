@@ -274,6 +274,42 @@ main{padding-block:26px 80px}
 .k-due.late{color:var(--bad)}
 .k-owner{width:20px;height:20px;border-radius:50%;background:var(--surface-2);border:1px solid var(--line);display:grid;place-items:center;font-size:10px;font-weight:700;color:var(--ink)}
 .h-blocked{background:var(--bad-soft);color:var(--bad)}
+/* equipe: responsáveis, tarefas e atualizações */
+.av{width:var(--avs,22px);height:var(--avs,22px);border-radius:50%;background:var(--avbg);color:#1a1205;display:inline-grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:calc(var(--avs,22px) * .48);flex:none;box-shadow:0 0 0 2px var(--surface)}
+.k-mode{display:flex;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+.k-mode button{border:0;background:transparent;color:var(--muted);border-radius:999px;padding:5px 14px;font-weight:600;font-size:calc(12.5px * var(--fs));transition:all .2s}
+.k-mode button[aria-pressed="true"]{background:var(--brand-grad);color:var(--lime-ink)}
+.k-person{display:flex;align-items:center;gap:8px;font-size:calc(12.5px * var(--fs));color:var(--muted)}
+.k-person select{padding:6px 10px;border-radius:999px;min-width:170px}
+.k-who{font-size:calc(11.5px * var(--fs));color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90px}
+.kcard.mine{box-shadow:var(--shadow),inset 0 0 0 1px rgba(246,165,36,.35)}
+.kcard{grid-template-columns:minmax(0,1fr);min-width:0}
+.kcard>*{min-width:0}
+.kcard .k-phase{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1 1 auto}
+.kcard .k-top .pri{flex:none}
+.tr-c{font-size:calc(11.5px * var(--fs));color:var(--muted);white-space:nowrap}
+.trow{grid-template-columns:22px 1fr auto;cursor:pointer}
+.tr-title{font-size:calc(14px * var(--fs));min-width:0}
+.task.done .tr-title{color:var(--muted);text-decoration:line-through}
+.tr-meta{display:flex;align-items:center;gap:8px}
+.tr-meta .chip{font-size:calc(10.5px * var(--fs))}
+.add-row select.inp{flex:0 0 auto;width:auto;max-width:170px}
+.composer{display:grid;gap:8px;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:10px}
+.kind-seg{display:flex;flex-wrap:wrap;gap:6px}
+.kind-seg button{border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:5px 11px;font-size:calc(12.5px * var(--fs));font-weight:600;transition:all .2s}
+.kind-seg button[aria-pressed="true"]{border-color:var(--accent);color:var(--ink);background:color-mix(in srgb,var(--accent) 16%,var(--surface))}
+.composer-foot{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.timeline{display:grid;gap:2px;margin-top:6px}
+.tl-item{display:grid;grid-template-columns:28px 1fr;gap:10px;padding:8px 4px;border-left:2px solid var(--line);margin-left:13px;position:relative}
+.tl-ico{width:26px;height:26px;border-radius:50%;background:var(--surface-2);border:1px solid var(--line);display:grid;place-items:center;font-size:13px;margin-left:-28px;position:relative;z-index:1}
+.tl-body{min-width:0;display:grid;gap:2px}
+.tl-body p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:calc(14px * var(--fs))}
+.tl-item.k-system p{color:var(--muted);font-size:calc(13px * var(--fs))}
+.tl-item.k-progress .tl-ico{border-color:var(--ok)}
+.tl-item.k-block .tl-ico{border-color:var(--bad);background:var(--bad-soft)}
+.review-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:var(--warn-soft);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent);border-radius:12px;padding:10px 12px}
+.review-bar span{flex:1;min-width:180px}
+.lock{background:var(--surface-2);border-radius:10px;padding:8px 10px;margin:0}
 .board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:start}
 .col{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:12px;min-height:200px;transition:background .25s,border-color .25s}
 .col.drag-over{background:color-mix(in srgb,var(--lime) 20%,var(--surface-2));border-color:var(--accent)}
@@ -751,7 +787,68 @@ const KCOLS=[
   {k:"blocked",c:"#ef7b62",sub:"Precisa de decisão ou ajuda"},
   {k:"done",c:"#5cc27e",sub:"Entregue e aprovado"}];
 const HCOL={done:"var(--ok)",ontrack:"var(--info)",risk:"var(--warn)",late:"var(--bad)",blocked:"var(--bad)",upcoming:"var(--line)",planned:"var(--line)"};
-let boardPhase="all",boardSprint=false;
+let boardPhase="all",boardSprint=false,boardMode="tasks",boardPerson="all";
+function modeToggle(){return Store.mode==="db"?`<div class="k-mode" role="group" aria-label="O que mostrar"><button data-km="tasks" aria-pressed="${boardMode==="tasks"}">Tarefas</button><button data-km="epics" aria-pressed="${boardMode==="epics"}">Etapas</button></div>`:"";}
+function bindModeToggle(m){$$("[data-km]",m).forEach(b=>b.onclick=()=>{boardMode=b.dataset.km;renderBoard(m);});}
+function renderTaskBoard(m){
+  const cd=curDay();
+  const curSpr=cd!=null&&cd>=1&&cd<=TOTAL()?sprintRange(sprintOf(cd)):null;
+  const me_=myEmail();
+  const all=Object.values(S.tasks).filter(t=>S.epics[t.epic_id]);
+  const es=all.filter(t=>{const e=S.epics[t.epic_id];
+    if(boardPhase!=="all"&&e.phase!==boardPhase)return false;
+    if(boardSprint&&curSpr&&!(e.startDay<=curSpr[1]&&(t.due_day||e.dueDay)>=curSpr[0]))return false;
+    if(boardPerson==="me")return t.assignee===me_;
+    if(boardPerson==="none")return !t.assignee;
+    if(boardPerson!=="all")return t.assignee===boardPerson;
+    return true;}).sort((a,b)=>((a.due_day||999)-(b.due_day||999))||String(a.priority).localeCompare(String(b.priority)));
+  const counts={};KCOLS.forEach(c=>counts[c.k]=es.filter(t=>t.status===c.k).length);
+  const total=es.length||1;
+  const people=Object.entries(TEAM).filter(([,p])=>p.access!=="leitor").sort((a,b)=>a[1].name.localeCompare(b[1].name));
+  const card=(t,col)=>{const e=S.epics[t.epic_id];const ph=S.phases[e.phase];const h=taskHealth(t);const can=canEditTask(t);
+    const left=cd==null||t.due_day==null?null:t.due_day-cd;const late=h==="late";
+    const nC=commentsOf("task",t.id).filter(c=>c.kind!=="system").length;
+    return `<div class="kcard ${t.assignee===me_?"mine":""}" draggable="${can}" data-tid="${esc(t.id)}" data-open="task:${esc(t.id)}" tabindex="0" role="button" style="--c:${col.c};--hc:${HCOL[h]}" title="${esc(t.title)} · ${esc(personName(t.assignee))}">
+      <div class="k-top"><span class="pri pri-${esc(t.priority||"")}">${esc(t.priority||"–")}</span><span class="k-phase" title="${esc(e.title)}">${ph?esc(ph.code||""):""} · ${esc(e.title)}</span></div>
+      <h4>${esc(t.title)}</h4>
+      <div class="k-foot">${avatar(t.assignee,22)}<span class="k-who">${esc(t.assignee===me_?"Você":personName(t.assignee))}</span>${nC?`<span class="tr-c">💬${nC}</span>`:""}<span class="k-due ${late?"late":""}">${t.due_day==null?"":left==null?dayLabel(t.due_day):t.status==="done"?"✓":late?Math.abs(left)+"d atraso":left===0?"hoje":dayLabel(t.due_day)}</span></div>
+    </div>`;};
+  m.innerHTML=`<section class="view"><div class="view-head"><div><h2>Quadro Kanban</h2><p>${isAdmin()?"Cada cartão é uma tarefa com responsável. Arraste para mudar o status; o que chega em Em validação espera a sua aprovação.":"Arraste as suas tarefas pelo fluxo. Ao terminar, envie para Em validação: um admin aprova."}</p></div></div>
+    <div class="k-toolbar">${modeToggle()}<div class="k-filters" role="group" aria-label="Filtrar por fase">
+      <button class="k-chip" data-kf="all" aria-pressed="${boardPhase==="all"}">Todas as fases</button>
+      ${phasesSorted().map(p=>`<button class="k-chip" data-kf="${esc(p.id)}" aria-pressed="${boardPhase===p.id}">${esc((p.code||"")+" "+p.name)}</button>`).join("")}
+    </div><div class="k-filters">
+      <label class="k-person"><span>Pessoa</span><select id="k-person" class="inp">
+        <option value="all" ${boardPerson==="all"?"selected":""}>Todas as pessoas</option>
+        ${ACCESS!=="leitor"?`<option value="me" ${boardPerson==="me"?"selected":""}>Minhas tarefas</option>`:""}
+        <option value="none" ${boardPerson==="none"?"selected":""}>Sem responsável</option>
+        ${people.map(([em,p])=>`<option value="${esc(em)}" ${boardPerson===em?"selected":""}>${esc(p.name)}</option>`).join("")}
+      </select></label>
+      ${curSpr?`<button class="k-chip" id="k-sprint" aria-pressed="${boardSprint}">Só o sprint atual (${sprintOf(cd)})</button>`:""}</div></div>
+    <div class="k-flow" role="img" aria-label="Distribuição das tarefas pelo fluxo">${KCOLS.map(c=>`<i style="width:${counts[c.k]/total*100}%;background:${c.c}" title="${ST[c.k]}: ${counts[c.k]}"></i>`).join("")}</div>
+    <div class="k-flow-legend">${KCOLS.map(c=>`<span><i style="background:${c.c}"></i>${ST[c.k]} <b class="mono">${counts[c.k]}</b></span>`).join("")}<span>· ${es.length} tarefa${es.length===1?"":"s"} no filtro</span></div>
+    <div class="kboard-scroll"><div class="kboard">${KCOLS.map(col=>{const list=es.filter(t=>t.status===col.k);
+      return `<div class="kcol" data-col="${col.k}" style="--c:${col.c}">
+        <div class="kcol-head"><div class="kcol-title"><h3><i></i>${ST[col.k]}</h3><span class="kcount">${list.length}</span></div><span class="kcol-sub">${col.k==="done"?"Aprovado por um admin":col.k==="review"?"Aguardando aprovação":col.sub}</span></div>
+        <div class="kcol-list">${list.map(t=>card(t,col)).join("")||`<div class="k-empty">${boardPerson==="me"?"Nenhuma tarefa sua aqui":"Arraste uma tarefa para cá"}</div>`}</div></div>`;}).join("")}</div></div></section>`;
+  bindModeToggle(m);
+  $$("[data-kf]",m).forEach(b=>b.onclick=()=>{boardPhase=b.dataset.kf;renderBoard(m);});
+  const ks=$("#k-sprint",m);if(ks)ks.onclick=()=>{boardSprint=!boardSprint;renderBoard(m);};
+  $("#k-person",m).onchange=ev=>{boardPerson=ev.target.value;renderBoard(m);};
+  $$(".kcard[data-tid]",m).forEach(c=>{
+    c.addEventListener("dragstart",ev=>{ev.dataTransfer.setData("text/plain",c.dataset.tid);ev.dataTransfer.effectAllowed="move";c.classList.add("dragging");});
+    c.addEventListener("dragend",()=>{c.classList.remove("dragging");$$(".kcol.drag-over",m).forEach(x=>x.classList.remove("drag-over"));});
+  });
+  $$(".kcol",m).forEach(col=>{
+    col.addEventListener("dragover",ev=>{ev.preventDefault();ev.dataTransfer.dropEffect="move";col.classList.add("drag-over");});
+    col.addEventListener("dragleave",ev=>{if(!col.contains(ev.relatedTarget))col.classList.remove("drag-over");});
+    col.addEventListener("drop",ev=>{ev.preventDefault();col.classList.remove("drag-over");const id=ev.dataTransfer.getData("text/plain");const t=S.tasks[id];const to=col.dataset.col;
+      if(!t||t.status===to)return;
+      if(!canEditTask(t)){toast("Só "+personName(t.assignee)+" ou um admin movem esta tarefa.");return;}
+      if(to==="done"&&!isAdmin()){toast("Envie para Em validação: um admin aprova e conclui.");return;}
+      taskUpdate(id,{status:to},`"${t.title.slice(0,40)}${t.title.length>40?"…":""}" → ${ST[to]}`);});
+  });
+}
 function phaseProg(pid){const es=epicsOf(pid);if(!es.length)return 0;let t=0,d=0;es.forEach(e=>{const n=(e.tasks||[]).length||1;t+=n;d+=prog(e)*n;});return d/t;}
 function totals(){let t=0,d=0,n=0,ed=0;const h={done:0,ontrack:0,risk:0,late:0,blocked:0,upcoming:0,planned:0};
   allEpics().forEach(e=>{n++;const k=health(e);h[k]++;if(k==="done")ed++;const ts=e.tasks||[];t+=ts.length;d+=e.status==="done"?ts.length:ts.filter(x=>x.done).length;});
@@ -761,6 +858,7 @@ function currentPhase(){const cd=curDay();if(cd==null)return null;return phasesS
 /* ---------------- render ---------------- */
 let raf=0;function schedule(){if(raf)return;const run=()=>{if(!raf)return;cancelAnimationFrame(raf);raf=0;renderAll();};raf=requestAnimationFrame(run);setTimeout(run,150);}
 function renderAll(){
+  if(typeof attachTasks==="function"&&Store.mode==="db")attachTasks();
   renderClock(false);renderStats();renderView();
   if(drawerState){const a=document.activeElement;if(!a||!$("#drawer").contains(a)||a.tagName==="BUTTON")renderDrawer();}
 }
@@ -912,6 +1010,7 @@ function renderTimeline(m){
 
 /* ---- quadro ---- */
 function renderBoard(m){
+  if(boardMode==="tasks"&&Store.mode==="db"){renderTaskBoard(m);return;}
   const cd=curDay();
   const curSpr=cd!=null&&cd>=1&&cd<=TOTAL()?sprintRange(sprintOf(cd)):null;
   const all=allEpics();
@@ -929,8 +1028,8 @@ function renderBoard(m){
       ${ts.length?`<div class="k-dots" aria-label="${ts.filter(t=>t.done).length} de ${ts.length} ações">${ts.map(t=>`<i class="${t.done||e.status==="done"?"on":""}"></i>`).join("")}</div>`:""}
       <div class="k-foot">${ring(p)}<span class="mono">${Math.round(p*100)}%</span>${e.owner?`<span class="k-owner" title="${esc(e.owner)}">${esc(e.owner.trim()[0]||"").toUpperCase()}</span>`:""}<span class="k-due ${late?"late":""}">${left==null?dayLabel(e.dueDay):late?Math.abs(left)+"d atraso":left===0?"hoje":dayLabel(e.dueDay)}</span></div>
     </div>`;};
-  m.innerHTML=`<section class="view"><div class="view-head"><div><h2>Quadro Kanban</h2><p>Arraste os cartões pelas seis etapas do fluxo. Ao chegar em Concluído, todas as ações da etapa são marcadas.</p></div></div>
-    <div class="k-toolbar"><div class="k-filters" role="group" aria-label="Filtrar por fase">
+  m.innerHTML=`<section class="view"><div class="view-head"><div><h2>Quadro Kanban</h2><p>Visão por etapa (frente de trabalho). Arraste para mudar o status da etapa inteira.</p></div></div>
+    <div class="k-toolbar">${modeToggle()}<div class="k-filters" role="group" aria-label="Filtrar por fase">
       <button class="k-chip" data-kf="all" aria-pressed="${boardPhase==="all"}">Todas as fases</button>
       ${phasesSorted().map(p=>`<button class="k-chip" data-kf="${esc(p.id)}" aria-pressed="${boardPhase===p.id}">${esc((p.code||"")+" "+p.name)}</button>`).join("")}
     </div>${curSpr?`<button class="k-chip" id="k-sprint" aria-pressed="${boardSprint}">Só o sprint atual (${sprintOf(cd)})</button>`:""}</div>
@@ -940,6 +1039,7 @@ function renderBoard(m){
       return `<div class="kcol" data-col="${col.k}" style="--c:${col.c}">
         <div class="kcol-head"><div class="kcol-title"><h3><i></i>${ST[col.k]}</h3><span class="kcount ${over?"over":""}" title="${over?"Acima do limite recomendado":""}">${list.length}${col.wip?"/"+col.wip:""}</span></div><span class="kcol-sub">${col.sub}</span></div>
         <div class="kcol-list">${list.map(e=>card(e,col)).join("")||`<div class="k-empty">Arraste uma etapa para cá</div>`}</div></div>`;}).join("")}</div></div></section>`;
+  bindModeToggle(m);
   $$("[data-kf]",m).forEach(b=>b.onclick=()=>{boardPhase=b.dataset.kf;renderBoard(m);});
   const ks=$("#k-sprint",m);if(ks)ks.onclick=()=>{boardSprint=!boardSprint;renderBoard(m);};
   $$(".kcard",m).forEach(c=>{
@@ -1041,7 +1141,7 @@ function closeDrawer(){drawerState=null;$("#drawer").classList.remove("open");$(
 function renderDrawer(first){
   const d=$("#drawer");const st=drawerState;if(!st)return;
   const scroll=$(".d-body",d)?$(".d-body",d).scrollTop:0;
-  if(st.type==="epic")drawEpic(d,st.id);else if(st.type==="phase")drawPhase(d,st.id);else drawSprint(d,st.id);
+  if(st.type==="epic")drawEpic(d,st.id);else if(st.type==="phase")drawPhase(d,st.id);else if(st.type==="task")drawTask(d,st.id);else drawSprint(d,st.id);
   if(!first&&$(".d-body",d))$(".d-body",d).scrollTop=scroll;
   resolveNames();
 }
@@ -1090,9 +1190,8 @@ function drawEpic(d,id){
   <div class="d-body">
     <div class="d-sec"><h4>Status</h4><div class="seg seg6" role="group" aria-label="Status">${Object.entries(ST).map(([k,l])=>`<button data-st="${k}" aria-pressed="${(e.status||"todo")===k}" ${canWrite?"":"disabled"}>${l}</button>`).join("")}</div></div>
     <div class="d-sec"><h4>Entrega</h4><div class="deliver"><div class="eyebrow">Ao final desta etapa</div><input id="f-delivery" value="${esc(e.delivery||"")}" placeholder="O que fica pronto" ${canWrite?"":"readonly"}></div></div>
-    <div class="d-sec"><h4>Ações (subetapas) <span class="mono">${(e.tasks||[]).filter(t=>t.done).length}/${(e.tasks||[]).length}</span></h4>
-      <div class="tasks">${(e.tasks||[]).map(t=>`<div class="task ${t.done?"done":""}"><button class="cb" data-tk="${esc(t.id)}" aria-label="${t.done?"Desmarcar":"Marcar"} ação" ${canWrite?"":"disabled"}>✓</button><input class="t" data-tt="${esc(t.id)}" value="${esc(t.text)}" ${canWrite?"":"readonly"} aria-label="Texto da ação"><button class="rm edit-only" data-trm="${esc(t.id)}" aria-label="Remover ação">×</button></div>`).join("")}</div>
-      <div class="add-row edit-only"><input class="inp" id="task-in" placeholder="Nova ação…"><button class="btn" id="task-add">Adicionar</button></div></div>
+    <div class="d-sec"><h4>Tarefas e responsáveis <span class="mono">${(e.tasks||[]).filter(t=>t.done).length}/${(e.tasks||[]).length}</span></h4>
+      ${Store.mode==="db"?taskRowsHtml(id):`<div class="tasks">${(e.tasks||[]).map(t=>`<div class="task ${t.done?"done":""}"><button class="cb" disabled>✓</button><span>${esc(t.text)}</span></div>`).join("")}</div>`}</div>
     <div class="d-sec"><h4>Planejamento</h4><div class="fields">
       ${dayInput("f-start",e.startDay,"Início")}${dayInput("f-due",e.dueDay,"Deadline")}
       <label class="field">Prioridade<select id="f-pri" ${canWrite?"":"disabled"}>${["P0","P1","P2","P3"].map(p=>`<option ${e.priority===p?"selected":""}>${p}</option>`).join("")}</select></label>
@@ -1100,7 +1199,7 @@ function drawEpic(d,id){
       <label class="field" style="grid-column:1/-1">Fase<select id="f-phase" ${canWrite?"":"disabled"}>${phasesSorted().map(p=>`<option value="${esc(p.id)}" ${p.id===e.phase?"selected":""}>${esc(p.code+" · "+p.name)}</option>`).join("")}</select></label>
       <label class="field" style="grid-column:1/-1">Objetivo<textarea id="f-sub" rows="2" ${canWrite?"":"readonly"}>${esc(e.subtitle||"")}</textarea></label>
     </div><p class="hint">Sprint ${sprintOf(e.startDay)}${sprintOf(e.dueDay)!==sprintOf(e.startDay)?" a "+sprintOf(e.dueDay):""} · ${e.dueDay-e.startDay+1} dias de duração.</p></div>
-    <div class="d-sec"><h4>Anotações</h4>${notesHtml(e.notes)}</div>
+    <div class="d-sec"><h4>Comentários da etapa</h4>${Store.mode==="db"?timelineHtml("epic",id):notesHtml(e.notes)}</div>
     <div class="d-sec edit-only" id="del-zone"><button class="btn btn-quiet" id="del" style="color:var(--bad);justify-self:start">Excluir esta etapa</button></div>
   </div>`;
   $("#x",d).onclick=closeDrawer;
@@ -1112,17 +1211,8 @@ function drawEpic(d,id){
   fs.onchange=()=>{const v=readDay(fs);if(v==null)return;updEpic(id,x=>{x.startDay=Math.max(1,v);if(x.dueDay<x.startDay)x.dueDay=x.startDay;});renderDrawer();};
   fd.onchange=()=>{const v=readDay(fd);if(v==null)return;updEpic(id,x=>{x.dueDay=Math.max(x.startDay,v);});renderDrawer();toast("Deadline atualizado.");};
   $$("[data-st]",d).forEach(b=>b.onclick=()=>{setStatus(id,b.dataset.st);renderDrawer();});
-  $$("[data-tk]",d).forEach(b=>b.onclick=()=>{updEpic(id,x=>{const t=x.tasks.find(k=>k.id===b.dataset.tk);t.done=!t.done;t.doneAt=t.done?new Date().toISOString():null;
-      const all=x.tasks.length&&x.tasks.every(k=>k.done);
-      if(all){x.status="done";x.doneAt=new Date().toISOString();}
-      else if(x.status==="done"){x.status="doing";delete x.doneAt;}
-      else if(x.tasks.some(k=>k.done)&&["todo","backlog"].includes(x.status||"todo"))x.status="doing";});
-    renderDrawer();const pb=$(`[data-tk="${CSS.escape(b.dataset.tk)}"]`,d);if(pb)pb.classList.add("pop");const e2=S.epics[id];if(e2.status==="done")toast("Etapa concluída. Boa!");});
-  $$("[data-tt]",d).forEach(inp=>inp.onchange=()=>{const v=inp.value.trim();if(!v)return;updEpic(id,x=>{x.tasks.find(k=>k.id===inp.dataset.tt).text=v;});});
-  $$("[data-trm]",d).forEach(b=>b.onclick=()=>{updEpic(id,x=>{x.tasks=x.tasks.filter(k=>k.id!==b.dataset.trm);});renderDrawer();});
-  const ti=$("#task-in",d);const addT=()=>{const v=ti.value.trim();if(!v)return;updEpic(id,x=>{x.tasks=(x.tasks||[]).concat({id:Date.now().toString(36),text:v,done:false});if(x.status==="done")x.status="doing";});renderDrawer();setTimeout(()=>{const n=$("#task-in");if(n)n.focus();},0);};
-  $("#task-add",d).onclick=addT;ti.onkeydown=ev=>{if(ev.key==="Enter"){ev.preventDefault();addT();}};
-  bindNotes(d,()=>S.epics[id].notes,n=>updEpic(id,x=>{x.notes=n;}));
+  if(Store.mode==="db"){bindTaskRows(d,id);bindTimeline(d,"epic",id,null);}
+  else bindNotes(d,()=>S.epics[id].notes,n=>updEpic(id,x=>{x.notes=n;}));
   $("#del",d).onclick=()=>{$("#del-zone",d).innerHTML=`<div class="confirm"><span>Excluir "${esc(e.title)}" com todas as ações e anotações? Não dá para desfazer.</span><button class="btn btn-danger" id="del-y">Excluir</button><button class="btn" id="del-n">Cancelar</button></div>`;
     $("#del-n",d).onclick=()=>renderDrawer();
     $("#del-y",d).onclick=()=>{delete S.epics[id];Store.remove("epics",id);if(Store.mode==="local")saveLocal();closeDrawer();schedule();toast("Etapa excluída.");};};
@@ -1219,6 +1309,157 @@ function bindGlobal(){
 function go(v){if(v===view)return;view=v;try{history.replaceState(null,"","#"+v);}catch(e){location.hash=v;}schedule();window.scrollTo({top:Math.min(window.scrollY,$(".hero").offsetHeight),behavior:REDUCED?"auto":"smooth"});}
 function movePill(){const b=$(`.tab[data-v="${view}"]`),p=$("#tab-pill");if(!b||!p)return;p.style.width=b.offsetWidth+"px";p.style.transform=`translateX(${b.offsetLeft}px)`;}
 
+/* ---------------- equipe: tarefas, responsáveis e comentários ---------------- */
+S.tasks={};S.comments={};
+let ACCESS="admin";
+const isAdmin=()=>ACCESS==="admin";
+const myEmail=()=>String(me.id||"").toLowerCase();
+const canComment=()=>ACCESS==="admin"||ACCESS==="membro";
+const canEditTask=t=>!!t&&(isAdmin()||(ACCESS==="membro"&&t.assignee===myEmail()));
+const AV_COLORS=["#f6a524","#ee7a45","#5cc27e","#7fb0d1","#c99bf0","#e8c36a","#ef7b62","#6fd3c1"];
+function personName(email){if(!email)return"Sem responsável";const t=TEAM[String(email).toLowerCase()];return t&&t.name?t.name:String(email).split("@")[0];}
+function avatar(email,size){
+  const n=email?personName(email):"?";let h=0;for(const ch of String(email||""))h=(h*31+ch.charCodeAt(0))>>>0;
+  const bg=email?AV_COLORS[h%AV_COLORS.length]:"var(--surface-2)";
+  return `<span class="av" style="--avbg:${bg};--avs:${size||22}px" title="${esc(n)}">${esc(email?(n.trim()[0]||"?").toUpperCase():"–")}</span>`;
+}
+function tasksOf(epicId){return Object.values(S.tasks).filter(t=>t.epic_id===epicId).sort((a,b)=>(a.sort-b.sort)||String(a.created_at).localeCompare(String(b.created_at)));}
+function attachTasks(){Object.entries(S.epics).forEach(([id,e])=>{e.tasks=tasksOf(id).map(t=>({id:t.id,text:t.title,done:t.status==="done",doneAt:t.done_at}));});}
+function taskHealth(t){
+  if(t.status==="done")return"done";if(t.status==="blocked")return"blocked";
+  const cd=curDay();if(cd==null||t.due_day==null)return"planned";
+  if(cd>t.due_day)return"late";if(t.due_day-cd<=3)return"risk";return"ontrack";
+}
+function commentsOf(type,id){return Object.values(S.comments).filter(c=>c.target_type===type&&c.target_id===id).sort((a,b)=>String(b.created_at).localeCompare(String(a.created_at)));}
+function friendlyErr(e){const m=(e&&e.message)||"";if(/administrador|validação|aprovada/i.test(m))return m;if(e&&(e.code==="42501"||/permission|policy/i.test(m)))return"Você não tem permissão para essa alteração.";return"Não consegui salvar agora. Tente de novo.";}
+async function taskUpdate(id,patch,okMsg){
+  const t=S.tasks[id];if(!t)return false;
+  const before=clone(t);Object.assign(t,patch);if(patch.status)t.done_at=patch.status==="done"?new Date().toISOString():null;schedule();setSync("saving");
+  const {data,error}=await sb.from("tasks").update(patch).eq("id",id).select();
+  if(error||!data||!data.length){S.tasks[id]=before;schedule();setSync("error");toast(error?friendlyErr(error):"Você não tem permissão para alterar esta tarefa.");return false;}
+  S.tasks[id]=data[0];setSync("ok");schedule();if(okMsg)toast(okMsg);return true;
+}
+async function taskInsert(epicId,title,assignee){
+  const e=S.epics[epicId]||{};const n=tasksOf(epicId).length;
+  setSync("saving");
+  const {data,error}=await sb.from("tasks").insert({epic_id:epicId,title,assignee:assignee||null,due_day:e.dueDay||null,status:e.status==="backlog"?"backlog":"todo",priority:e.priority||null,sort:n+1}).select().single();
+  if(error){setSync("error");toast(friendlyErr(error));return null;}
+  S.tasks[data.id]=data;setSync("ok");schedule();return data;
+}
+async function taskDelete(id){
+  const before=S.tasks[id];delete S.tasks[id];schedule();
+  const {error}=await sb.from("tasks").delete().eq("id",id);
+  if(error){S.tasks[id]=before;schedule();toast(friendlyErr(error));return false;}return true;
+}
+async function commentAdd(type,id,kind,body){
+  setSync("saving");
+  const {data,error}=await sb.from("comments").insert({target_type:type,target_id:id,kind,body}).select().single();
+  if(error){setSync("error");toast(friendlyErr(error));return null;}
+  S.comments[data.id]=data;setSync("ok");schedule();return data;
+}
+async function commentDelete(cid){
+  const before=S.comments[cid];delete S.comments[cid];schedule();
+  const {error}=await sb.from("comments").delete().eq("id",cid);
+  if(error){S.comments[cid]=before;schedule();toast(friendlyErr(error));}
+}
+const KIND={comment:{i:"💬",l:"Comentário"},progress:{i:"✅",l:"O que fiz"},block:{i:"⛔",l:"Bloqueio"},system:{i:"↻",l:"Histórico"}};
+function systemText(body){
+  const parts=String(body).split(";").filter(Boolean).map(p=>{const [k,v]=p.split(":");const [a,b]=(v||"").split(">");
+    if(k==="status")return `mudou o status de ${ST[a]||a} para ${ST[b]||b}`;
+    if(k==="resp")return b?`atribuiu a ${personName(b)}`:"removeu o responsável";
+    if(k==="prazo")return `mudou o prazo para ${b?dayLabel(+b,true):"sem prazo"}`;
+    return p;});
+  return parts.join(" · ");
+}
+function timelineHtml(type,id){
+  const list=commentsOf(type,id);
+  const composer=canComment()?`<div class="composer">
+      <div class="kind-seg" role="group" aria-label="Tipo de atualização">${["comment","progress","block"].map((k,i)=>`<button type="button" data-kind="${k}" aria-pressed="${i===0}">${KIND[k].i} ${KIND[k].l}</button>`).join("")}</div>
+      <textarea class="inp" id="cm-in" rows="2" placeholder="Escreva um comentário…"></textarea>
+      <div class="composer-foot"><span class="hint">Ctrl + Enter envia</span><button class="btn btn-lime" id="cm-add">Publicar</button></div></div>`:"";
+  return composer+`<div class="timeline">${list.map(c=>{const sys=c.kind==="system";const mine=String(c.author).toLowerCase()===myEmail();
+    return `<div class="tl-item k-${esc(c.kind)}"><div class="tl-ico" aria-hidden="true">${KIND[c.kind]?KIND[c.kind].i:"•"}</div><div class="tl-body">
+      <div class="note-meta"><span><b>${esc(mine?"Você":personName(c.author))}</b>${sys?"":` · ${esc(KIND[c.kind]?KIND[c.kind].l:"")}`} · ${esc(new Date(c.created_at).toLocaleString("pt-BR",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}))}</span>${!sys&&(mine||isAdmin())?`<button data-rmc="${esc(c.id)}">Excluir</button>`:""}</div>
+      <p>${esc(sys?systemText(c.body):c.body)}</p></div></div>`;}).join("")||'<p class="hint">Nenhuma atualização ainda.</p>'}</div>`;
+}
+function bindTimeline(d,type,id,onBlock){
+  let kind="comment";const ta=$("#cm-in",d);
+  const ph={comment:"Escreva um comentário…",progress:"O que você fez? Ex.: amostrei 30 atendimentos de novembro.",block:"O que está travando e do que você precisa?"};
+  $$("[data-kind]",d).forEach(b=>b.onclick=()=>{kind=b.dataset.kind;$$("[data-kind]",d).forEach(x=>x.setAttribute("aria-pressed",String(x===b)));if(ta){ta.placeholder=ph[kind];ta.focus();}});
+  const send=async()=>{const v=ta.value.trim();if(!v)return;const btn=$("#cm-add",d);btn.disabled=true;
+    const ok=await commentAdd(type,id,kind,v);btn.disabled=false;if(!ok)return;ta.value="";
+    if(kind==="block"&&onBlock)await onBlock();
+    toast(kind==="progress"?"Avanço registrado.":kind==="block"?"Bloqueio registrado.":"Comentário publicado.");renderDrawer();};
+  const b=$("#cm-add",d);if(b)b.onclick=send;
+  if(ta)ta.onkeydown=e=>{if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)){e.preventDefault();send();}};
+  $$("[data-rmc]",d).forEach(x=>x.onclick=()=>{commentDelete(x.dataset.rmc);});
+}
+function teamOptions(sel){
+  const people=Object.entries(TEAM).filter(([,p])=>p.access!=="leitor").sort((a,b)=>a[1].name.localeCompare(b[1].name));
+  return `<option value="">Sem responsável</option>`+people.map(([em,p])=>`<option value="${esc(em)}" ${em===sel?"selected":""}>${esc(p.name)}${p.role?" · "+esc(p.role):""}</option>`).join("");
+}
+function taskRowsHtml(epicId){
+  const ts=tasksOf(epicId);
+  return `<div class="tasks">${ts.map(t=>{const h=taskHealth(t);const can=canEditTask(t);const done=t.status==="done";
+    const cbTitle=isAdmin()?(done?"Reabrir":"Aprovar como concluída"):can?"Enviar para validação":"Só o responsável ou um admin altera";
+    const nC=commentsOf("task",t.id).filter(c=>c.kind!=="system").length;
+    return `<div class="task trow ${done?"done":""}" data-open="task:${esc(t.id)}" tabindex="0" role="button">
+      <button class="cb" data-tq="${esc(t.id)}" aria-label="${esc(cbTitle)}" title="${esc(cbTitle)}" ${(isAdmin()||(can&&!["review","done"].includes(t.status)))?"":"disabled"}>✓</button>
+      <span class="tr-title">${esc(t.title)}</span>
+      <span class="tr-meta">${nC?`<span class="tr-c" title="${nC} comentário(s)">💬 ${nC}</span>`:""}<span class="chip h-${t.status==="review"?"risk":h}"><i></i>${ST[t.status]}</span>${avatar(t.assignee,22)}</span></div>`;}).join("")||'<p class="hint">Nenhuma tarefa nesta etapa.</p>'}</div>
+    ${isAdmin()?`<div class="add-row"><input class="inp" id="task-in" placeholder="Nova tarefa…"><select class="inp" id="task-who" aria-label="Responsável">${teamOptions("")}</select><button class="btn" id="task-add">Adicionar</button></div>`:""}`;
+}
+function bindTaskRows(d,epicId){
+  $$("[data-tq]",d).forEach(b=>b.onclick=ev=>{ev.stopPropagation();const t=S.tasks[b.dataset.tq];if(!t)return;
+    if(isAdmin())taskUpdate(t.id,{status:t.status==="done"?"doing":"done"},t.status==="done"?"Tarefa reaberta.":"Tarefa aprovada como concluída.");
+    else taskUpdate(t.id,{status:"review"},"Enviada para validação.");});
+  const ti=$("#task-in",d);if(!ti)return;
+  const add=async()=>{const v=ti.value.trim();if(!v)return;const who=$("#task-who",d).value;ti.disabled=true;const r=await taskInsert(epicId,v,who);ti.disabled=false;if(r){ti.value="";toast("Tarefa criada"+(who?" para "+personName(who):"")+".");renderDrawer();setTimeout(()=>{const n=$("#task-in");if(n)n.focus();},0);}};
+  $("#task-add",d).onclick=add;ti.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();add();}};
+}
+function drawTask(d,id){
+  const t=S.tasks[id];if(!t){closeDrawer();return;}
+  const e=S.epics[t.epic_id]||{};const ph=S.phases[e.phase];const h=taskHealth(t);const can=canEditTask(t);const cd=curDay();
+  const left=cd==null||t.due_day==null?null:t.due_day-cd;
+  const stBtns=Object.entries(ST).map(([k,l])=>{let dis=!can;let tip="";
+    if(!isAdmin()&&k==="done"){dis=true;tip="Só um admin aprova";}
+    if(!isAdmin()&&t.status==="done"){dis=true;tip="Tarefa aprovada";}
+    return `<button data-tst="${k}" aria-pressed="${t.status===k}" ${dis?"disabled":""} title="${esc(tip)}">${l}</button>`;}).join("");
+  d.innerHTML=`<div class="d-head">
+    <div class="d-head-row"><div class="d-crumbs">${ph?`<button data-open="phase:${esc(e.phase)}">${esc((ph.code||"")+" "+ph.name)}</button><span>›</span>`:""}<button data-open="epic:${esc(t.epic_id)}">${esc(e.title||"Etapa")}</button><span>›</span><span>Tarefa</span></div><button class="x" id="x" aria-label="Fechar">×</button></div>
+    ${isAdmin()?`<input class="d-title" id="t-title" value="${esc(t.title)}" aria-label="Texto da tarefa">`:`<h2 class="d-title" style="border:0">${esc(t.title)}</h2>`}
+    <div class="epic-row">${avatar(t.assignee,26)}<b>${esc(personName(t.assignee))}</b><span class="chip h-${t.status==="review"?"risk":h}"><i></i>${ST[t.status]}</span>
+      <span class="hint mono">${t.due_day!=null?"prazo "+dayLabel(t.due_day,true):"sem prazo"}${left==null||t.status==="done"?"":left<0?` · ${-left} dia(s) de atraso`:left===0?" · vence hoje":` · faltam ${left} dia(s)`}</span></div>
+  </div>
+  <div class="d-body">
+    ${t.status==="review"&&isAdmin()?`<div class="review-bar"><span>⏳ <b>${esc(personName(t.assignee))}</b> enviou para validação.</span><button class="btn btn-lime" id="t-approve">Aprovar</button><button class="btn" id="t-return">Devolver</button></div>`:""}
+    ${!can&&!isAdmin()?`<p class="hint lock">🔒 Só ${esc(personName(t.assignee))} ou um admin alteram esta tarefa. Você pode comentar.</p>`:""}
+    <div class="d-sec"><h4>Status</h4><div class="seg seg6" role="group" aria-label="Status da tarefa">${stBtns}</div>
+      ${can&&!isAdmin()?'<p class="hint">Terminou? Envie para <b>Em validação</b>: um admin aprova e marca como concluída.</p>':""}</div>
+    <div class="d-sec"><h4>Detalhes</h4><div class="fields">
+      <label class="field">Responsável<select id="t-who" ${isAdmin()?"":"disabled"}>${teamOptions(t.assignee||"")}</select></label>
+      ${isAdmin()?dayInput("t-due",t.due_day||e.dueDay||1,"Prazo"):`<label class="field">Prazo<input value="${t.due_day!=null?esc(dayLabel(t.due_day,true)):"—"}" readonly></label>`}
+      <label class="field">Prioridade<select id="t-pri" ${isAdmin()?"":"disabled"}>${["P0","P1","P2","P3"].map(p=>`<option ${t.priority===p?"selected":""}>${p}</option>`).join("")}</select></label>
+      <label class="field">Etapa<input value="${esc(e.title||"")}" readonly></label>
+    </div><p class="hint">Prazo da etapa: ${dayLabel(e.dueDay||0,true)} · Fim do ciclo: ${dayLabel(TOTAL(),true)}</p></div>
+    <div class="d-sec"><h4>Atualizações</h4>${timelineHtml("task",id)}</div>
+    ${isAdmin()?`<div class="d-sec" id="tdel-zone"><button class="btn btn-quiet" id="t-del" style="color:var(--bad);justify-self:start">Excluir esta tarefa</button></div>`:""}
+  </div>`;
+  $("#x",d).onclick=closeDrawer;
+  $$("[data-tst]",d).forEach(b=>b.onclick=()=>{if(b.dataset.tst===t.status)return;taskUpdate(id,{status:b.dataset.tst},`Status: ${ST[b.dataset.tst]}.`);});
+  const ap=$("#t-approve",d);if(ap)ap.onclick=()=>taskUpdate(id,{status:"done"},"Tarefa aprovada.");
+  const rt=$("#t-return",d);if(rt)rt.onclick=async()=>{const ok=await taskUpdate(id,{status:"doing"},"Tarefa devolvida para Em andamento.");if(ok){renderDrawer();const ta=$("#cm-in");if(ta){ta.placeholder="Explique o que falta ajustar…";ta.focus();}}};
+  if(isAdmin()){
+    const tt=$("#t-title",d);tt.onchange=()=>{const v=tt.value.trim();if(v)taskUpdate(id,{title:v});};
+    $("#t-who",d).onchange=ev=>taskUpdate(id,{assignee:ev.target.value||null},ev.target.value?"Atribuída a "+personName(ev.target.value)+".":"Responsável removido.");
+    const du=$("#t-due",d);du.onchange=()=>{const v=readDay(du);if(v!=null)taskUpdate(id,{due_day:Math.max(1,v)},"Prazo atualizado.");};
+    $("#t-pri",d).onchange=ev=>taskUpdate(id,{priority:ev.target.value});
+    $("#t-del",d).onclick=()=>{$("#tdel-zone",d).innerHTML=`<div class="confirm"><span>Excluir esta tarefa e o histórico dela? Não dá para desfazer.</span><button class="btn btn-danger" id="td-y">Excluir</button><button class="btn" id="td-n">Cancelar</button></div>`;
+      $("#td-n",d).onclick=()=>renderDrawer();$("#td-y",d).onclick=async()=>{const eid=t.epic_id;if(await taskDelete(id)){toast("Tarefa excluída.");openDrawer("epic",eid);}};};
+  }
+  bindTimeline(d,"task",id,can?()=>taskUpdate(id,{status:"blocked"}):null);
+}
+
 /* ---------------- acesso via Supabase ---------------- */
 const SB_URL="https://mnjwkejigbunfsrdntqv.supabase.co";
 const SB_KEY="sb_publishable_EndGQXiOibfrIPNYxzMaVw_bCnKxvya";
@@ -1269,8 +1510,10 @@ async function start(){
   if(error||!ok){$("#denied-email").textContent=email;authView("denied");return;}
   Store.mode="db";
   Store.db={doc:k=>{const p=k.split("/");return{set:d=>sbSet(p[0],p[1],d),delete:()=>sbDel(p[0],p[1])};}};
-  canWrite=true;document.body.classList.remove("ro");
-  try{const {data:tm}=await sb.rpc("team");TEAM={};(tm||[]).forEach(r=>{TEAM[String(r.email).toLowerCase()]={name:r.name,role:r.role};});}catch(e){}
+  try{const {data:tm}=await sb.rpc("team");TEAM={};(tm||[]).forEach(r=>{TEAM[String(r.email).toLowerCase()]={name:r.name,role:r.role,access:r.access||"membro"};});}catch(e){}
+  ACCESS=(TEAM[email.toLowerCase()]&&TEAM[email.toLowerCase()].access)||"leitor";
+  canWrite=ACCESS==="admin";document.body.classList.toggle("ro",!canWrite);
+  if(ACCESS==="membro"){boardPerson="me";}
   fillUser(email);
   $("#acct").hidden=false;setSync("ok");
   if(CAME_FROM_LINK){$("#auth").classList.add("modal");authView("password","Bem-vindo! Crie uma senha para entrar mais rápido das próximas vezes.",true);}
@@ -1283,17 +1526,32 @@ async function start(){
       else applyRow(p.new);
       schedule();
     })
+    .on("postgres_changes",{event:"*",schema:"public",table:"tasks"},p=>{
+      if(p.eventType==="DELETE"){const o=p.old||{};if(o.id)delete S.tasks[o.id];}else if(p.new&&p.new.id)S.tasks[p.new.id]=p.new;
+      schedule();
+    })
+    .on("postgres_changes",{event:"*",schema:"public",table:"comments"},p=>{
+      if(p.eventType==="DELETE"){const o=p.old||{};if(o.id)delete S.comments[o.id];}else if(p.new&&p.new.id)S.comments[p.new.id]=p.new;
+      schedule();
+    })
     .subscribe(st=>{if(st==="SUBSCRIBED"&&S.confirmed)loadAll();});
 }
 async function loadAll(){
-  const {data,error}=await sb.from("docs").select("collection,id,data");
-  if(error){setSync("error");toast("Não consegui carregar os dados. Recarregue a página.");return;}
+  const [docs,tasks,comments]=await Promise.all([
+    sb.from("docs").select("collection,id,data"),
+    sb.from("tasks").select("*"),
+    sb.from("comments").select("*").order("created_at",{ascending:false}).limit(3000)]);
+  if(docs.error){setSync("error");toast("Não consegui carregar os dados. Recarregue a página.");return;}
   const n={config:null,phases:{},epics:{},sprints:{}};
-  (data||[]).forEach(r=>{if(r.collection==="config")n.config=r.data;else if(n[r.collection])n[r.collection][r.id]=r.data;});
-  S.config=n.config;S.phases=n.phases;S.epics=n.epics;S.sprints=n.sprints;S.confirmed=true;schedule();
+  (docs.data||[]).forEach(r=>{if(r.collection==="config")n.config=r.data;else if(n[r.collection])n[r.collection][r.id]=r.data;});
+  S.config=n.config;S.phases=n.phases;S.epics=n.epics;S.sprints=n.sprints;
+  if(!tasks.error){S.tasks={};(tasks.data||[]).forEach(t=>S.tasks[t.id]=t);}
+  if(!comments.error){S.comments={};(comments.data||[]).forEach(c=>S.comments[c.id]=c);}
+  S.confirmed=true;schedule();
 }
 function applyRow(r){if(!r)return;if(r.collection==="config")S.config=r.data;else if(S[r.collection])S[r.collection][r.id]=r.data;}
 async function sbSet(c,i,d){
+  if(c==="epics"&&d&&d.tasks){d=Object.assign({},d);delete d.tasks;}
   const {error}=await sb.from("docs").upsert({collection:c,id:i,data:d,updated_by:me.id,updated_at:new Date().toISOString()});
   if(error)throw{code:error.code==="42501"?"invalid_argument":"unavailable",message:error.message};
 }
