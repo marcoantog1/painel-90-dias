@@ -310,6 +310,33 @@ main{padding-block:26px 80px}
 .review-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:var(--warn-soft);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent);border-radius:12px;padding:10px 12px}
 .review-bar span{flex:1;min-width:180px}
 .lock{background:var(--surface-2);border-radius:10px;padding:8px 10px;margin:0}
+
+/* quem está online */
+.online-wrap{position:relative;flex:none}
+.on-btn{display:flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--on-forest);border-radius:999px;padding:3px 12px 3px 4px;transition:background .2s,border-color .2s}
+.on-btn:hover,.on-btn[aria-expanded="true"]{background:rgba(255,255,255,.1);border-color:rgba(92,194,126,.5)}
+.on-stack{display:flex}
+.on-av{margin-left:-7px;position:relative;display:inline-flex}
+.on-av:first-child{margin-left:0}
+.on-av::after{content:"";position:absolute;right:-1px;bottom:-1px;width:8px;height:8px;border-radius:50%;background:#5cc27e;box-shadow:0 0 0 2px var(--forest)}
+.on-av.away::after{background:#f2b545}
+.on-av .av{box-shadow:0 0 0 2px var(--forest)}
+.on-count{display:flex;align-items:center;gap:6px;font-size:calc(12.5px * var(--fs));font-weight:600;white-space:nowrap}
+.on-count i{width:7px;height:7px;border-radius:50%;background:#5cc27e;box-shadow:0 0 0 0 rgba(92,194,126,.6);animation:onpulse 2s infinite}
+@keyframes onpulse{0%{box-shadow:0 0 0 0 rgba(92,194,126,.55)}70%{box-shadow:0 0 0 7px rgba(92,194,126,0)}100%{box-shadow:0 0 0 0 rgba(92,194,126,0)}}
+.on-menu{position:absolute;right:0;top:calc(100% + 8px);width:300px;max-height:70vh;overflow-y:auto;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow-hi);padding:6px;display:grid;gap:2px;z-index:70;animation:rise .25s cubic-bezier(.2,.8,.2,1) both}
+.on-row{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:9px}
+.on-row:hover{background:var(--surface-2)}
+.on-txt{display:grid;min-width:0}
+.on-txt b{font-size:calc(13.5px * var(--fs));font-weight:600;display:flex;align-items:center;gap:6px}
+.on-txt span{font-size:calc(12px * var(--fs));color:var(--muted)}
+.pdot{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none;margin-right:6px;vertical-align:1px;background:var(--line)}
+.pdot.on{background:#5cc27e;box-shadow:0 0 6px rgba(92,194,126,.8)}
+.pdot.away{background:#f2b545}
+.p-pres{font-size:calc(11.5px * var(--fs));color:var(--muted)}
+@media (max-width:1560px){.sync span{display:none}.top .wrap{gap:12px}}
+@media (max-width:1180px){.on-count{display:none}.on-btn{padding:3px}}
+@media (max-width:560px){.on-count{display:none}.on-btn{padding:3px}.on-menu{width:min(300px,calc(100vw - 32px))}}
 /* minha área */
 .tab-badge{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;margin-left:6px;border-radius:999px;background:var(--bad);color:#fff;font-size:11px;font-weight:700;vertical-align:1px}
 .m-dates{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
@@ -645,6 +672,7 @@ main{position:relative;z-index:1}
       <button class="tab" role="tab" data-v="rituais">Rituais</button>
     </nav>
     <div class="fs-ctl" role="group" aria-label="Tamanho do texto"><button id="fs-down" aria-label="Diminuir o texto">A−</button><button id="fs-up" aria-label="Aumentar o texto">A+</button></div>
+    <div class="online-wrap" id="online" hidden></div>
     <div class="acct-wrap" id="acct" hidden>
       <button class="user-chip" id="user-chip" aria-haspopup="menu" aria-expanded="false" aria-controls="user-menu">
         <span class="avatar" id="u-avatar" aria-hidden="true">·</span>
@@ -1005,6 +1033,7 @@ function renderView(){
   const r={minha:renderMine,equipe:renderTeam,mapa:renderMap,linha:renderTimeline,quadro:renderBoard,metricas:renderMetrics,rituais:renderRituals}[view];
   const changed=m.dataset.v!==view;m.dataset.v=view;
   r(m);
+  if(changed&&typeof trackPresence==="function")trackPresence();
   if(changed&&m.firstElementChild){
     m.firstElementChild.classList.add("enter");
     if(!REDUCED){
@@ -1243,7 +1272,7 @@ async function loadAccounts(force){
 }
 async function refreshTeam(){
   const {data:tm}=await sb.rpc("team");if(!tm)return;TEAM={};
-  tm.forEach(r=>{TEAM[String(r.email).toLowerCase()]={name:r.name,role:r.role,access:r.access||"membro"};});schedule();
+  tm.forEach(r=>{TEAM[String(r.email).toLowerCase()]={name:r.name,role:r.role,access:r.access||"membro",uid:r.uid||null,last_seen_at:r.last_seen_at||null};});schedule();
 }
 function personStats(email){
   const cd=curDay();const ts=Object.values(S.tasks).filter(t=>t.assignee===email&&S.epics[t.epic_id]);
@@ -1272,7 +1301,7 @@ function renderTeam(m){
   const seg=(n,tot,c,l)=>n?`<i style="flex:${n};background:${c}" title="${l}: ${n}"></i>`:"";
   const card=([em,p])=>{const s=personStats(em);const isMe=em===myEmail();
     return `<div class="panel p-card">
-      <div class="p-head">${avatar(em,42)}<div class="p-id"><b>${esc(p.name)}${isMe?' <small class="hint">(você)</small>':""}</b><span>${p.role&&p.role.toLowerCase()!==ACCESS_LABEL[p.access].toLowerCase()?esc(p.role)+" · ":""}<span class="acc-role r-${esc(p.access)}">${ACCESS_LABEL[p.access]}</span></span></div>
+      <div class="p-head">${avatar(em,42)}<div class="p-id"><b>${presenceDot(em)}${esc(p.name)}${isMe?' <small class="hint">(você)</small>':""}</b><small class="p-pres">${esc(presenceText(em))}</small><span>${p.role&&p.role.toLowerCase()!==ACCESS_LABEL[p.access].toLowerCase()?esc(p.role)+" · ":""}<span class="acc-role r-${esc(p.access)}">${ACCESS_LABEL[p.access]}</span></span></div>
         ${isAdmin()?`<button class="x p-edit" data-open="person:${esc(em)}" aria-label="Editar ${esc(p.name)}" title="Editar e gerenciar acesso">✎</button>`:""}</div>
       ${p.access==="leitor"?`<p class="hint">Acompanha o painel sem tarefas atribuídas.</p>`:`
       <div class="p-bar" aria-label="Distribuição das tarefas">${s.total?seg(s.done,s.total,"#5cc27e","Concluídas")+seg(s.review,s.total,"#ee7a45","Em validação")+seg(s.doing,s.total,"#f6a524","Em andamento")+seg(s.blocked,s.total,"#ef7b62","Bloqueadas")+seg(s.queued,s.total,"#4a4740","A fazer / backlog"):'<i style="flex:1;background:var(--surface-2)"></i>'}</div>
@@ -1751,6 +1780,54 @@ function drawTask(d,id){
   bindTimeline(d,"task",id,can?()=>taskUpdate(id,{status:"blocked"}):null);
 }
 
+
+/* ---------------- quem está online ---------------- */
+let ONLINE={},presCh=null;
+const VIEW_LABEL={minha:"Minha área",equipe:"Equipe",mapa:"Mapa",linha:"Linha do tempo",quadro:"Quadro",metricas:"Métricas",rituais:"Rituais"};
+function presenceOf(email){const p=TEAM[email];if(!p)return null;if(email===myEmail())return{away:document.hidden,view};return p.uid&&ONLINE[p.uid]?ONLINE[p.uid]:null;}
+function presenceText(email){
+  const o=presenceOf(email);const p=TEAM[email]||{};
+  if(o&&!o.away)return"online agora"+(o.view&&VIEW_LABEL[o.view]?" · em "+VIEW_LABEL[o.view]:"");
+  if(o&&o.away)return"ausente · painel aberto em segundo plano";
+  return p.last_seen_at?"visto "+ago(p.last_seen_at):"ainda não entrou";
+}
+function presenceDot(email){const o=presenceOf(email);return `<i class="pdot ${o?(o.away?"away":"on"):"off"}" aria-hidden="true"></i>`;}
+function trackPresence(){if(presCh&&presCh.state==="joined")presCh.track({view,away:document.hidden,at:new Date().toISOString()}).catch(()=>{});}
+async function startPresence(){
+  if(!session||!session.user)return;
+  try{if(sb.realtime&&sb.realtime.setAuth)await sb.realtime.setAuth(session.access_token);}catch(e){}
+  presCh=sb.channel("presenca",{config:{private:true,presence:{key:session.user.id}}});
+  presCh.on("presence",{event:"sync"},()=>{
+    const st=presCh.presenceState();ONLINE={};
+    Object.entries(st).forEach(([k,arr])=>{const act=arr.filter(x=>!x.away);const pick=act[act.length-1]||arr[arr.length-1]||{};ONLINE[k]={away:!act.length,view:pick.view||""};});
+    renderOnline();if(view==="equipe")schedule();
+  });
+  presCh.subscribe(st=>{if(st==="SUBSCRIBED")trackPresence();});
+  sb.rpc("touch_presence").then(()=>{},()=>{});
+  setInterval(()=>{if(!document.hidden)sb.rpc("touch_presence").then(()=>{},()=>{});refreshTeam();},120000);
+  document.addEventListener("visibilitychange",()=>{trackPresence();if(!document.hidden)sb.rpc("touch_presence").then(()=>{},()=>{});renderOnline();});
+  renderOnline();
+}
+function renderOnline(){
+  const w=$("#online");if(!w||Store.mode!=="db")return;
+  const open=!!($("#on-menu")&&!$("#on-menu").hidden);
+  const all=Object.keys(TEAM);
+  const rank=em=>{const o=presenceOf(em);return o?(o.away?1:0):2;};
+  const sorted=all.sort((a,b)=>rank(a)-rank(b)||TEAM[a].name.localeCompare(TEAM[b].name));
+  const on=sorted.filter(em=>rank(em)===0);const here=sorted.filter(em=>rank(em)<2);
+  w.hidden=false;
+  w.innerHTML=`<button class="on-btn" id="on-btn" aria-expanded="${open}" aria-controls="on-menu" title="Quem está no painel agora">
+      <span class="on-stack">${here.slice(0,4).map(em=>`<span class="on-av ${rank(em)===1?"away":""}">${avatar(em,26)}</span>`).join("")}</span>
+      <span class="on-count"><i></i>${on.length} online</span></button>
+    <div class="on-menu" id="on-menu" role="dialog" aria-label="Equipe online" ${open?"":"hidden"}>
+      <div class="um-head"><span class="um-label">Equipe agora</span><span>${on.length} online · ${all.length} no total</span></div>
+      ${sorted.map(em=>`<div class="on-row">${avatar(em,28)}<div class="on-txt"><b>${presenceDot(em)}${esc(TEAM[em].name)}${em===myEmail()?" (você)":""}</b><span>${esc(presenceText(em))}</span></div></div>`).join("")}
+    </div>`;
+  $("#on-btn").onclick=e=>{e.stopPropagation();const m=$("#on-menu");m.hidden=!m.hidden;$("#on-btn").setAttribute("aria-expanded",String(!m.hidden));closeUserMenu();};
+}
+document.addEventListener("click",e=>{const m=$("#on-menu");if(m&&!m.hidden&&!e.target.closest("#online")){m.hidden=true;const b=$("#on-btn");if(b)b.setAttribute("aria-expanded","false");}});
+setInterval(()=>{if(Store.mode==="db"&&!document.hidden)renderOnline();},60000);
+
 /* ---------------- acesso via Supabase ---------------- */
 const SB_URL="https://mnjwkejigbunfsrdntqv.supabase.co";
 const SB_KEY="sb_publishable_EndGQXiOibfrIPNYxzMaVw_bCnKxvya";
@@ -1801,7 +1878,7 @@ async function start(){
   if(error||!ok){$("#denied-email").textContent=email;authView("denied");return;}
   Store.mode="db";
   Store.db={doc:k=>{const p=k.split("/");return{set:d=>sbSet(p[0],p[1],d),delete:()=>sbDel(p[0],p[1])};}};
-  try{const {data:tm}=await sb.rpc("team");TEAM={};(tm||[]).forEach(r=>{TEAM[String(r.email).toLowerCase()]={name:r.name,role:r.role,access:r.access||"membro"};});}catch(e){}
+  try{const {data:tm}=await sb.rpc("team");TEAM={};(tm||[]).forEach(r=>{TEAM[String(r.email).toLowerCase()]={name:r.name,role:r.role,access:r.access||"membro",uid:r.uid||null,last_seen_at:r.last_seen_at||null};});}catch(e){}
   ACCESS=(TEAM[email.toLowerCase()]&&TEAM[email.toLowerCase()].access)||"leitor";
   canWrite=ACCESS==="admin";document.body.classList.toggle("ro",!canWrite);
   if(ACCESS==="membro"){boardPerson="me";}
@@ -1812,6 +1889,7 @@ async function start(){
   else $("#auth").hidden=true;
   const timer=setTimeout(()=>{if(!S.confirmed){S.timedOut=true;schedule();}},10000);
   await loadAll();clearTimeout(timer);
+  startPresence();
   sb.channel("docs-ao-vivo")
     .on("postgres_changes",{event:"*",schema:"public",table:"docs"},p=>{
       if(p.eventType==="DELETE"){const o=p.old||{};if(o.collection&&o.collection!=="config"&&S[o.collection])delete S[o.collection][o.id];}
