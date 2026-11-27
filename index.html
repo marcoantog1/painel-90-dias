@@ -311,6 +311,51 @@ main{padding-block:26px 80px}
 .review-bar span{flex:1;min-width:180px}
 .lock{background:var(--surface-2);border-radius:10px;padding:8px 10px;margin:0}
 
+
+/* ---------- versão simplificada ---------- */
+.hero-sm{padding-block:14px 16px}
+.hero-sm .hero-grid{grid-template-columns:minmax(0,1fr) auto;gap:18px}
+.hero-sm .ident{gap:0}
+.hero-sm .ident-row{gap:16px;align-items:center}
+.hero-sm .ident-label{display:none}
+.hero-sm .logo-slot{min-height:0}
+.hero-sm .ag-mark{height:34px}
+.hero-sm .ag-word{font-size:15px}
+.hero-sm .ident-x{line-height:34px}
+.hero-sm .owner-name{font-size:28px;line-height:34px}
+.hero-sm .clock{padding:10px 14px;gap:14px;border-radius:16px}
+.hero-sm .ring{width:62px;height:62px}
+.hero-sm .ring-c b{font-size:20px}
+.hero-sm .ring-c span{font-size:8px;letter-spacing:.08em}
+.hero-sm .ring .tick{display:none}
+.hero-sm .clock-info{gap:4px}
+.hero-sm .clock-info h3{font-size:calc(15px * var(--fs))}
+.hero-sm .clock-info .meta{font-size:calc(12.5px * var(--fs))}
+.hero-sm .clock-info .meta br,.hero-sm .countdown span{display:none}
+.hero-sm .countdown div{min-width:40px;padding:3px 6px}.hero-sm .countdown b{font-size:16px}
+.hero-sm .stats{display:none}
+.hero-sm .start-ctl input,.hero-sm .start-ctl .btn{padding:5px 9px;font-size:12.5px}
+.tab-more{display:inline-flex;align-items:center}
+.more-menu{position:fixed;z-index:80;min-width:190px;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-hi);padding:6px;display:grid;gap:2px;animation:rise .2s cubic-bezier(.2,.8,.2,1) both}
+.more-menu button{border:0;background:transparent;color:var(--ink);text-align:left;padding:9px 12px;border-radius:8px;font-size:calc(14px * var(--fs))}
+.more-menu button:hover{background:var(--surface-2)}
+.kboard.k4{grid-template-columns:repeat(4,minmax(220px,1fr))}
+.kcard h4{-webkit-line-clamp:3}
+.k-sub{font-size:calc(11.5px * var(--fs));color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.k-block{color:var(--bad);font-weight:700}
+.k-check{display:flex;align-items:center;gap:8px;font-size:calc(11.5px * var(--fs));color:var(--muted)}
+.k-cbar{flex:1;height:5px;border-radius:5px;background:var(--surface-2);overflow:hidden}
+.k-cbar i{display:block;height:100%;background:var(--brand-grad);border-radius:5px;transition:width .6s}
+.view-head .k-person{margin-left:auto}
+.m-where{max-width:none}
+.m-where b{color:var(--ink)}
+.m-list{display:grid;gap:8px;margin-top:8px}
+.m-log{display:grid;gap:8px}
+.m-log select{width:100%}
+.block-bar{background:var(--bad-soft);border-color:color-mix(in srgb,var(--bad) 40%,transparent)}
+@media (max-width:1000px){.hero-sm .hero-grid{grid-template-columns:1fr}}
+@media (max-width:560px){.hero-sm .owner-name{font-size:22px}.hero-sm .ident-row{gap:10px}}
+@media (max-width:700px){.top .wrap{flex-wrap:wrap;row-gap:6px;padding-block:6px}.tabs{order:5;flex:1 1 100%}.brand{margin-right:auto}.top .fs-ctl,.top .sync{display:none}.m-col .m-row{grid-template-columns:minmax(0,1fr)}.m-col .m-side{justify-content:flex-start}}
 /* quem está online */
 .online-wrap{position:relative;flex:none}
 .on-btn{display:flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--on-forest);border-radius:999px;padding:3px 12px 3px 4px;transition:background .2s,border-color .2s}
@@ -663,14 +708,13 @@ main{position:relative;z-index:1}
     <div class="brand"><div class="brand-mark" aria-hidden="true">↗</div><div>COMERCIAL<small>Plano 90 dias</small></div></div>
     <nav class="tabs" id="tabs" role="tablist" aria-label="Vistas do painel">
       <span class="tab-pill" id="tab-pill" aria-hidden="true"></span>
-      <button class="tab" role="tab" data-v="minha">Minha área<span class="tab-badge" id="tab-badge" hidden></span></button>
-      <button class="tab" role="tab" data-v="equipe" id="tab-equipe" hidden>Equipe</button>
-      <button class="tab" role="tab" data-v="mapa">Mapa</button>
-      <button class="tab" role="tab" data-v="linha">Linha do tempo</button>
+      <button class="tab" role="tab" data-v="minha">Início<span class="tab-badge" id="tab-badge" hidden></span></button>
       <button class="tab" role="tab" data-v="quadro">Quadro</button>
-      <button class="tab" role="tab" data-v="metricas">Métricas</button>
-      <button class="tab" role="tab" data-v="rituais">Rituais</button>
+      <button class="tab" role="tab" data-v="mapa">Plano</button>
+      <button class="tab" role="tab" data-v="equipe" id="tab-equipe" hidden>Equipe</button>
+      <button class="tab tab-more" id="tab-more" aria-haspopup="menu" aria-expanded="false">Mais ▾</button>
     </nav>
+    <div class="more-menu" id="more-menu" role="menu" hidden><button role="menuitem" data-go="linha">Linha do tempo</button><button role="menuitem" data-go="metricas">Métricas</button><button role="menuitem" data-go="rituais">Rituais</button></div>
     <div class="fs-ctl" role="group" aria-label="Tamanho do texto"><button id="fs-down" aria-label="Diminuir o texto">A−</button><button id="fs-up" aria-label="Aumentar o texto">A+</button></div>
     <div class="online-wrap" id="online" hidden></div>
     <div class="acct-wrap" id="acct" hidden>
@@ -690,11 +734,10 @@ main{position:relative;z-index:1}
 </header>
 
 <div class="spot" id="spot" aria-hidden="true"></div>
-<section class="hero"><div class="scan" aria-hidden="true"></div>
+<section class="hero hero-sm"><div class="scan" aria-hidden="true"></div>
   <div class="wrap">
     <div class="hero-grid">
       <div class="ident">
-        <div class="eyebrow">Plano comercial · 90 dias</div>
         <div class="ident-row">
           <div class="ident-block">
             <span class="ident-label">Estrutura</span>
@@ -884,62 +927,52 @@ function health(e){
   return"ontrack";
 }
 const HL={done:"Concluída",ontrack:"No prazo",risk:"Em risco",late:"Atrasada",upcoming:"Próxima",planned:"Planejada",blocked:"Bloqueada"};
-const ST={backlog:"Backlog",todo:"A fazer",doing:"Em andamento",review:"Em validação",blocked:"Bloqueado",done:"Concluído"};
+const ST={backlog:"A fazer",todo:"A fazer",doing:"Fazendo",review:"Em validação",blocked:"Bloqueada",done:"Concluída"};
+const SIMPLE=["todo","doing","review","done"];
+const simpleStatus=s=>s==="backlog"?"todo":s==="blocked"?"doing":(s||"todo");
 const KCOLS=[
-  {k:"backlog",c:"#7a756d",sub:"Ainda não priorizado"},
-  {k:"todo",c:"#c9c3b8",sub:"Planejado para o sprint"},
-  {k:"doing",c:"#f6a524",sub:"Limite de 3 em paralelo",wip:3},
-  {k:"review",c:"#ee7a45",sub:"Aguardando validação"},
-  {k:"blocked",c:"#ef7b62",sub:"Precisa de decisão ou ajuda"},
-  {k:"done",c:"#5cc27e",sub:"Entregue e aprovado"}];
+  {k:"todo",c:"#c9c3b8"},
+  {k:"doing",c:"#f6a524"},
+  {k:"review",c:"#ee7a45"},
+  {k:"done",c:"#5cc27e"}];
 const HCOL={done:"var(--ok)",ontrack:"var(--info)",risk:"var(--warn)",late:"var(--bad)",blocked:"var(--bad)",upcoming:"var(--line)",planned:"var(--line)"};
 let boardPhase="all",boardSprint=false,boardMode="tasks",boardPerson="all";
-function modeToggle(){return Store.mode==="db"?`<div class="k-mode" role="group" aria-label="O que mostrar"><button data-km="tasks" aria-pressed="${boardMode==="tasks"}">Tarefas</button><button data-km="epics" aria-pressed="${boardMode==="epics"}">Etapas</button></div>`:"";}
+function modeToggle(){return "";return Store.mode==="db"?`<div class="k-mode" role="group" aria-label="O que mostrar"><button data-km="tasks" aria-pressed="${boardMode==="tasks"}">Tarefas</button><button data-km="epics" aria-pressed="${boardMode==="epics"}">Etapas</button></div>`:"";}
 function bindModeToggle(m){$$("[data-km]",m).forEach(b=>b.onclick=()=>{boardMode=b.dataset.km;renderBoard(m);});}
 function renderTaskBoard(m){
-  const cd=curDay();
-  const curSpr=cd!=null&&cd>=1&&cd<=TOTAL()?sprintRange(sprintOf(cd)):null;
-  const me_=myEmail();
+  const cd=curDay();const me_=myEmail();
   const all=Object.values(S.tasks).filter(t=>S.epics[t.epic_id]);
   const es=all.filter(t=>{const e=S.epics[t.epic_id];
     if(boardPhase!=="all"&&e.phase!==boardPhase)return false;
-    if(boardSprint&&curSpr&&!(e.startDay<=curSpr[1]&&(t.due_day||e.dueDay)>=curSpr[0]))return false;
     if(boardPerson==="me")return t.assignee===me_;
     if(boardPerson==="none")return !t.assignee;
     if(boardPerson!=="all")return t.assignee===boardPerson;
-    return true;}).sort((a,b)=>((a.due_day||999)-(b.due_day||999))||String(a.priority).localeCompare(String(b.priority)));
-  const counts={};KCOLS.forEach(c=>counts[c.k]=es.filter(t=>t.status===c.k).length);
-  const total=es.length||1;
+    return true;}).sort((a,b)=>((a.due_day||999)-(b.due_day||999)));
   const people=Object.entries(TEAM).filter(([,p])=>p.access!=="leitor").sort((a,b)=>a[1].name.localeCompare(b[1].name));
   const card=(t,col)=>{const e=S.epics[t.epic_id];const ph=S.phases[e.phase];const h=taskHealth(t);const can=canEditTask(t);
-    const left=cd==null||t.due_day==null?null:t.due_day-cd;const late=h==="late";
-    const nC=commentsOf("task",t.id).filter(c=>c.kind!=="system").length;
+    const left=cd==null||t.due_day==null?null:t.due_day-cd;const late=h==="late";const c=checkCount(t);
     return `<div class="kcard ${t.assignee===me_?"mine":""}" draggable="${can}" data-tid="${esc(t.id)}" data-open="task:${esc(t.id)}" tabindex="0" role="button" style="--c:${col.c};--hc:${HCOL[h]}" title="${esc(t.title)} · ${esc(personName(t.assignee))}">
-      <div class="k-top"><span class="pri pri-${esc(t.priority||"")}">${esc(t.priority||"–")}</span><span class="k-phase" title="${esc(e.title)}">${ph?esc(ph.code||""):""} · ${esc(e.title)}</span></div>
       <h4>${esc(t.title)}</h4>
-      <div class="k-foot">${avatar(t.assignee,22)}<span class="k-who">${esc(t.assignee===me_?"Você":personName(t.assignee))}</span>${nC?`<span class="tr-c">💬${nC}</span>`:""}<span class="k-due ${late?"late":""}">${t.due_day==null?"":left==null?dayLabel(t.due_day):t.status==="done"?"✓":late?Math.abs(left)+"d atraso":left===0?"hoje":dayLabel(t.due_day)}</span></div>
+      <div class="k-sub">${ph?esc((ph.code||"")+" · "+ph.name):""}${t.status==="blocked"?'<span class="k-block">⛔ bloqueada</span>':""}</div>
+      ${c.n?`<div class="k-check"><span class="k-cbar"><i style="width:${(t.status==="done"?1:c.d/c.n)*100}%"></i></span><span class="mono">${t.status==="done"?c.n:c.d}/${c.n}</span></div>`:""}
+      <div class="k-foot">${avatar(t.assignee,22)}<span class="k-who">${esc(t.assignee===me_?"Você":personName(t.assignee))}</span><span class="k-due ${late?"late":""}">${t.due_day==null||t.status==="done"?"":left==null?dayLabel(t.due_day):late?Math.abs(left)+"d atraso":left===0?"hoje":dayLabel(t.due_day)}</span></div>
     </div>`;};
-  m.innerHTML=`<section class="view"><div class="view-head"><div><h2>Quadro Kanban</h2><p>${isAdmin()?"Cada cartão é uma tarefa com responsável. Arraste para mudar o status; o que chega em Em validação espera a sua aprovação.":"Arraste as suas tarefas pelo fluxo. Ao terminar, envie para Em validação: um admin aprova."}</p></div></div>
-    <div class="k-toolbar">${modeToggle()}<div class="k-filters" role="group" aria-label="Filtrar por fase">
-      <button class="k-chip" data-kf="all" aria-pressed="${boardPhase==="all"}">Todas as fases</button>
-      ${phasesSorted().map(p=>`<button class="k-chip" data-kf="${esc(p.id)}" aria-pressed="${boardPhase===p.id}">${esc((p.code||"")+" "+p.name)}</button>`).join("")}
-    </div><div class="k-filters">
+  m.innerHTML=`<section class="view"><div class="view-head"><div><h2>Quadro</h2><p>${isAdmin()?"Arraste os cartões. O que chega em Em validação espera a sua aprovação.":"Arraste as suas tarefas. Terminou? Mande para Em validação."}</p></div>
       <label class="k-person"><span>Pessoa</span><select id="k-person" class="inp">
-        <option value="all" ${boardPerson==="all"?"selected":""}>Todas as pessoas</option>
-        ${ACCESS!=="leitor"?`<option value="me" ${boardPerson==="me"?"selected":""}>Minhas tarefas</option>`:""}
+        <option value="all" ${boardPerson==="all"?"selected":""}>Todas</option>
+        ${ACCESS!=="leitor"?`<option value="me" ${boardPerson==="me"?"selected":""}>Só as minhas</option>`:""}
         <option value="none" ${boardPerson==="none"?"selected":""}>Sem responsável</option>
         ${people.map(([em,p])=>`<option value="${esc(em)}" ${boardPerson===em?"selected":""}>${esc(p.name)}</option>`).join("")}
-      </select></label>
-      ${curSpr?`<button class="k-chip" id="k-sprint" aria-pressed="${boardSprint}">Só o sprint atual (${sprintOf(cd)})</button>`:""}</div></div>
-    <div class="k-flow" role="img" aria-label="Distribuição das tarefas pelo fluxo">${KCOLS.map(c=>`<i style="width:${counts[c.k]/total*100}%;background:${c.c}" title="${ST[c.k]}: ${counts[c.k]}"></i>`).join("")}</div>
-    <div class="k-flow-legend">${KCOLS.map(c=>`<span><i style="background:${c.c}"></i>${ST[c.k]} <b class="mono">${counts[c.k]}</b></span>`).join("")}<span>· ${es.length} tarefa${es.length===1?"":"s"} no filtro</span></div>
-    <div class="kboard-scroll"><div class="kboard">${KCOLS.map(col=>{const list=es.filter(t=>t.status===col.k);
+      </select></label></div>
+    <div class="k-filters" role="group" aria-label="Filtrar por fase" style="margin-bottom:14px">
+      <button class="k-chip" data-kf="all" aria-pressed="${boardPhase==="all"}">Todas as fases</button>
+      ${phasesSorted().map(p=>`<button class="k-chip" data-kf="${esc(p.id)}" aria-pressed="${boardPhase===p.id}">${esc((p.code||"")+" "+p.name)}</button>`).join("")}
+    </div>
+    <div class="kboard-scroll"><div class="kboard k4">${KCOLS.map(col=>{const list=es.filter(t=>simpleStatus(t.status)===col.k);
       return `<div class="kcol" data-col="${col.k}" style="--c:${col.c}">
-        <div class="kcol-head"><div class="kcol-title"><h3><i></i>${ST[col.k]}</h3><span class="kcount">${list.length}</span></div><span class="kcol-sub">${col.k==="done"?"Aprovado por um admin":col.k==="review"?"Aguardando aprovação":col.sub}</span></div>
-        <div class="kcol-list">${list.map(t=>card(t,col)).join("")||`<div class="k-empty">${boardPerson==="me"?"Nenhuma tarefa sua aqui":"Arraste uma tarefa para cá"}</div>`}</div></div>`;}).join("")}</div></div></section>`;
-  bindModeToggle(m);
+        <div class="kcol-head"><div class="kcol-title"><h3><i></i>${ST[col.k]}</h3><span class="kcount">${list.length}</span></div></div>
+        <div class="kcol-list">${list.map(t=>card(t,col)).join("")||`<div class="k-empty">${boardPerson==="me"?"Nada seu aqui":"Vazio"}</div>`}</div></div>`;}).join("")}</div></div></section>`;
   $$("[data-kf]",m).forEach(b=>b.onclick=()=>{boardPhase=b.dataset.kf;renderBoard(m);});
-  const ks=$("#k-sprint",m);if(ks)ks.onclick=()=>{boardSprint=!boardSprint;renderBoard(m);};
   $("#k-person",m).onchange=ev=>{boardPerson=ev.target.value;renderBoard(m);};
   $$(".kcard[data-tid]",m).forEach(c=>{
     c.addEventListener("dragstart",ev=>{ev.dataTransfer.setData("text/plain",c.dataset.tid);ev.dataTransfer.effectAllowed="move";c.classList.add("dragging");});
@@ -949,9 +982,9 @@ function renderTaskBoard(m){
     col.addEventListener("dragover",ev=>{ev.preventDefault();ev.dataTransfer.dropEffect="move";col.classList.add("drag-over");});
     col.addEventListener("dragleave",ev=>{if(!col.contains(ev.relatedTarget))col.classList.remove("drag-over");});
     col.addEventListener("drop",ev=>{ev.preventDefault();col.classList.remove("drag-over");const id=ev.dataTransfer.getData("text/plain");const t=S.tasks[id];const to=col.dataset.col;
-      if(!t||t.status===to)return;
+      if(!t||simpleStatus(t.status)===to)return;
       if(!canEditTask(t)){toast("Só "+personName(t.assignee)+" ou um admin movem esta tarefa.");return;}
-      if(to==="done"&&!isAdmin()){toast("Envie para Em validação: um admin aprova e conclui.");return;}
+      if(to==="done"&&!isAdmin()){toast("Mande para Em validação: um admin aprova.");return;}
       taskUpdate(id,{status:to},`"${t.title.slice(0,40)}${t.title.length>40?"…":""}" → ${ST[to]}`);});
   });
 }
@@ -993,7 +1026,7 @@ function renderClock(tickOnly){
     pct=cd/T;const ph=currentPhase();const sp=sprintOf(cd);const [a,b]=sprintRange(sp);
     center=`<b>${cd}</b><span>de ${T} dias</span>`;
     info=`<h3>Dia ${cd} · Sprint ${sp}${ph?" · "+esc(ph.name):""}</h3>
-      <div class="meta">Sprint ${sp} vai de ${dayLabel(a)} a ${dayLabel(b)} (faltam ${b-cd} dia${b-cd===1?"":"s"}).<br>Faltam <b>${T-cd}</b> dias para o fim do ciclo, em ${dayLabel(T,true)}.</div>${ctl}`;
+      <div class="meta">Sprint ${sp} vai de ${dayLabel(a)} a ${dayLabel(b)} (faltam ${b-cd} dia${b-cd===1?"":"s"}). <br>Faltam <b>${T-cd}</b> dias para o fim do ciclo, em ${dayLabel(T,true)}.</div>${ctl}`;
   }
   el.innerHTML=`<div class="ring"><svg viewBox="0 0 132 132" aria-hidden="true"><circle class="orbit" cx="66" cy="66" r="63"/><circle class="trk" cx="66" cy="66" r="56"/><circle class="val" cx="66" cy="66" r="56" stroke-dasharray="${C}" stroke-dashoffset="${C}"/>${ticks}${pct>0?'<circle class="tipdot" r="5" cx="122" cy="66"/>':""}</svg><div class="ring-c"><div>${center}</div></div></div><div class="clock-info">${info}</div>`;
   const v=$(".val",el),tip=$(".tipdot",el);requestAnimationFrame(()=>requestAnimationFrame(()=>{v.style.strokeDashoffset=String(C*(1-pct));}));
@@ -1124,7 +1157,7 @@ function renderBoard(m){
   const all=allEpics();
   const es=all.filter(e=>(boardPhase==="all"||e.phase===boardPhase)&&(!boardSprint||!curSpr||(e.startDay<=curSpr[1]&&e.dueDay>=curSpr[0])))
     .sort((a,b)=>(a.dueDay-b.dueDay)||(String(a.priority).localeCompare(String(b.priority))));
-  const statusOf=e=>ST[e.status]?e.status:"todo";
+  const statusOf=e=>simpleStatus(e.status);
   const counts={};KCOLS.forEach(c=>counts[c.k]=es.filter(e=>statusOf(e)===c.k).length);
   const total=es.length||1;
   const ring=p=>{const C=2*Math.PI*8;return `<svg class="k-ring" viewBox="0 0 22 22" aria-hidden="true"><circle class="t" cx="11" cy="11" r="8"/><circle class="v" cx="11" cy="11" r="8" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-p)}"/></svg>`;};
@@ -1178,7 +1211,7 @@ function mineRow(t,mode){
   }
   return `<div class="m-row" data-open="task:${esc(t.id)}" tabindex="0" role="button" style="--hc:${HCOL[h]}">
     <div class="m-main"><span class="m-title">${esc(t.title)}</span>
-      <span class="m-sub">${ph?esc(ph.code||"")+" · ":""}${esc(e.title||"")}${mode==="queue"||mode==="all"?` · ${esc(personName(t.assignee))}`:""}${nC?` · 💬 ${nC}`:""}</span></div>
+      <span class="m-sub">${ph?esc((ph.code||"")+" · "+ph.name):""}${mode==="queue"||mode==="all"?` · ${esc(personName(t.assignee))}`:""}${checkCount(t).n?` · ✓ ${checkCount(t).d}/${checkCount(t).n}`:""}${nC?` · 💬 ${nC}`:""}</span></div>
     <div class="m-side"><span class="m-due ${h==="late"?"late":""}">${esc(dueText(t))}</span><span class="chip h-${t.status==="review"?"risk":h}"><i></i>${ST[t.status]}</span>${mode==="queue"||mode==="all"?avatar(t.assignee,24):""}</div>
     ${acts?`<div class="m-acts">${acts}</div>`:""}
   </div>`;
@@ -1195,57 +1228,46 @@ function feedHtml(limit){
 }
 function renderMine(m){
   if(Store.mode!=="db"){renderMap(m);return;}
-  const keep={text:$("#log-text",m)?$("#log-text",m).value:"",task:$("#log-task",m)?$("#log-task",m).value:"",focus:document.activeElement&&document.activeElement.id==="log-text",scroll:$(".feed",m)?$(".feed",m).scrollTop:0};
+  const keep={text:$("#log-text",m)?$("#log-text",m).value:"",task:$("#log-task",m)?$("#log-task",m).value:"",focus:document.activeElement&&document.activeElement.id==="log-text"};
   const cd=curDay(),T=TOTAL(),meE=myEmail(),ph=currentPhase(),pMe=TEAM[meE]||{};
-  const mine=Object.values(S.tasks).filter(t=>t.assignee===meE&&S.epics[t.epic_id]);
-  const open=mine.filter(t=>t.status!=="done");
   const byDue=(a,b)=>(a.due_day??999)-(b.due_day??999);
-  const late=open.filter(t=>t.status!=="review"&&cd!=null&&t.due_day!=null&&t.due_day<cd).sort(byDue);
-  const week=open.filter(t=>t.status!=="review"&&!late.includes(t)&&cd!=null&&t.due_day!=null&&t.due_day-cd<=7).sort(byDue);
-  const review=open.filter(t=>t.status==="review").sort(byDue);
-  const next=open.filter(t=>!late.includes(t)&&!week.includes(t)&&t.status!=="review").sort(byDue);
-  const doneMine=mine.filter(t=>t.status==="done");
-  const queue=Object.values(S.tasks).filter(t=>t.status==="review"&&S.epics[t.epic_id]).sort(byDue);
-  const blocks=Object.values(S.tasks).filter(t=>t.status==="blocked"&&S.epics[t.epic_id]).sort(byDue);
+  const isLate=t=>t.status!=="review"&&cd!=null&&t.due_day!=null&&t.due_day<cd;
+  const mine=Object.values(S.tasks).filter(t=>t.assignee===meE&&S.epics[t.epic_id]);
+  const open=mine.filter(t=>t.status!=="done").sort((a,b)=>(isLate(b)-isLate(a))||byDue(a,b));
+  const attention=Object.values(S.tasks).filter(t=>(t.status==="review"||t.status==="blocked")&&S.epics[t.epic_id]).sort((a,b)=>(a.status==="review"?0:1)-(b.status==="review"?0:1)||byDue(a,b));
   const noOwner=Object.values(S.tasks).filter(t=>!t.assignee&&t.status!=="done"&&S.epics[t.epic_id]).length;
-  const spr=cd!=null&&cd>=1&&cd<=T?sprintRange(sprintOf(cd)):null;
-  const left=n=>n==null?"":n<0?`encerrado`:n===0?"termina hoje":`faltam ${n} dia${n===1?"":"s"}`;
-  const group=(title,list,cls,empty)=>`<div class="m-group ${cls||""}"><h3>${title} <span class="kcount">${list.length}</span></h3>${list.map(t=>mineRow(t,"mine")).join("")||`<p class="hint">${empty}</p>`}</div>`;
+  const left=n=>n<0?"encerrada":n===0?"termina hoje":`faltam ${n} dia${n===1?"":"s"}`;
   const hello=new Date().getHours()<12?"Bom dia":new Date().getHours()<18?"Boa tarde":"Boa noite";
-  m.innerHTML=`<section class="view"><div class="view-head"><div><h2>${hello}, ${esc(pMe.name||"")}</h2><p>${ACCESS==="leitor"?"Você tem acesso de leitura: acompanhe o andamento, a fila de validação e a atividade do time.":"Suas tarefas, os prazos que importam e o que o time está fazendo."}</p></div></div>
-    <div class="m-dates">
-      <div class="m-date"><span class="eyebrow">Fase atual</span><b>${ph?esc((ph.code||"")+" · "+ph.name):cd==null?"Início não definido":"—"}</b><small>${ph?`até ${dayLabel(ph.endDay,true)} · ${left(ph.endDay-cd)}`:""}</small></div>
-      <div class="m-date"><span class="eyebrow">Sprint</span><b>${spr?"Sprint "+sprintOf(cd):"—"}</b><small>${spr?`até ${dayLabel(spr[1],true)} · ${left(spr[1]-cd)}`:""}</small></div>
-      <div class="m-date"><span class="eyebrow">Fim do projeto</span><b>${startD()?dayLabel(T,true):"—"}</b><small>${cd!=null?left(T-cd):"defina o dia X"}</small></div>
-      ${ACCESS!=="leitor"?`<div class="m-date accent"><span class="eyebrow">Minhas tarefas</span><b>${open.length} aberta${open.length===1?"":"s"}</b><small>${late.length?`<span class="late">${late.length} atrasada${late.length>1?"s":""}</span> · `:""}${doneMine.length} concluída${doneMine.length===1?"":"s"}</small></div>`:""}
-    </div>
+  const where=cd==null?"O dia de início ainda não foi definido.":ph?`Estamos na fase <b>${esc((ph.code||"")+" · "+ph.name)}</b>, que termina em ${dayLabel(ph.endDay)} (${left(ph.endDay-cd)}). O projeto acaba em ${dayLabel(T,true)}.`:`O projeto acaba em ${dayLabel(T,true)}.`;
+  m.innerHTML=`<section class="view"><div class="view-head"><div><h2>${hello}, ${esc(pMe.name||"")}</h2><p class="m-where">${where}</p></div></div>
     <div class="m-grid">
       <div class="m-col">
-        ${isAdmin()?`<div class="panel m-admin"><h3>Fila de validação <span class="kcount ${queue.length?"over":""}">${queue.length}</span></h3><p class="sub">Tarefas que o time terminou e esperam a sua aprovação.</p>${queue.map(t=>mineRow(t,"queue")).join("")||'<p class="hint">Nada esperando aprovação.</p>'}
-          ${blocks.length?`<h3 style="margin-top:14px">Bloqueios <span class="kcount over">${blocks.length}</span></h3>${blocks.map(t=>mineRow(t,"all")).join("")}`:""}
-          ${noOwner?`<p class="hint" style="margin-top:10px">📌 ${noOwner} tarefa${noOwner>1?"s":""} sem responsável. <button class="f-link" id="m-noowner">Ver no quadro</button></p>`:""}</div>`:""}
-        ${ACCESS!=="leitor"?`
-        ${open.length?`<div class="panel m-log"><h3>O que você fez hoje?</h3><div class="m-log-row"><select class="inp" id="log-task" aria-label="Tarefa">${open.map(t=>`<option value="${esc(t.id)}">${esc(t.title.length>70?t.title.slice(0,70)+"…":t.title)}</option>`).join("")}</select></div>
-          <textarea class="inp" id="log-text" rows="2" placeholder="Ex.: liguei para 12 leads sem retorno e reativei 4."></textarea><div class="composer-foot"><span class="hint">Fica registrado na tarefa como ✅ avanço</span><button class="btn btn-lime" id="log-add">Registrar</button></div></div>`:""}
-        <div class="panel">${group("Atrasadas",late,"g-late","Nada atrasado. Ótimo!")}${group("Próximos 7 dias",week,"","Nada vencendo nesta semana.")}${group("Aguardando aprovação",review,"","Nada aguardando.")}${group(cd==null?"Minhas tarefas":"Mais adiante",next,"",open.length?"—":"Nenhuma tarefa atribuída a você ainda.")}</div>`:""}
-        ${!isAdmin()&&ACCESS==="leitor"?`<div class="panel"><h3>Em validação <span class="kcount">${queue.length}</span></h3>${queue.map(t=>mineRow(t,"all")).join("")||'<p class="hint">Nada aguardando.</p>'}</div>`:""}
+        ${isAdmin()&&(attention.length||noOwner)?`<div class="panel m-admin"><h3>Precisa de você <span class="kcount over">${attention.length}</span></h3>
+          ${attention.map(t=>mineRow(t,t.status==="review"?"queue":"all")).join("")}
+          ${noOwner?`<p class="hint">📌 ${noOwner} tarefa${noOwner>1?"s":""} sem responsável. <button class="f-link" id="m-noowner">Distribuir</button></p>`:""}</div>`:""}
+        ${ACCESS!=="leitor"?`<div class="panel"><h3>Minhas tarefas <span class="kcount">${open.length}</span></h3>
+          <div class="m-list">${open.map(t=>mineRow(t,"mine")).join("")||'<p class="hint">Nenhuma tarefa com você agora.</p>'}</div></div>
+        ${open.length?`<div class="panel m-log"><h3>O que você fez hoje?</h3>
+          <select class="inp" id="log-task" aria-label="Tarefa">${open.map(t=>`<option value="${esc(t.id)}">${esc(t.title)}</option>`).join("")}</select>
+          <div class="add-row"><input class="inp" id="log-text" placeholder="Ex.: liguei para 12 leads e reativei 4."><button class="btn btn-lime" id="log-add">Registrar</button></div></div>`:""}`
+        :`<div class="panel"><h3>Em validação</h3>${attention.filter(t=>t.status==="review").map(t=>mineRow(t,"all")).join("")||'<p class="hint">Nada aguardando.</p>'}</div>`}
       </div>
-      <aside class="panel m-feed"><h3>Atividade do time</h3><p class="sub">Comentários, avanços, bloqueios e mudanças de status.</p><div class="feed">${feedHtml(30)}</div></aside>
+      <aside class="panel m-feed"><h3>Atividade do time</h3><div class="feed">${feedHtml(15)}</div></aside>
     </div></section>`;
   $$("[data-qa]",m).forEach(b=>b.onclick=async ev=>{ev.stopPropagation();const id=b.dataset.id;const t=S.tasks[id];if(!t)return;
     const a=b.dataset.qa;
     if(a==="start")taskUpdate(id,{status:"doing"},"Bora! Tarefa em andamento.");
     else if(a==="review")taskUpdate(id,{status:"review"},"Enviada para validação.");
     else if(a==="approve")taskUpdate(id,{status:"done"},"Tarefa aprovada.");
-    else if(a==="return"){const ok=await taskUpdate(id,{status:"doing"},"Devolvida para Em andamento. Explique o que falta.");if(ok){openDrawer("task",id);setTimeout(()=>{const ta=$("#cm-in");if(ta){ta.placeholder="Explique o que falta ajustar…";ta.focus();}},350);}}
+    else if(a==="return"){const ok=await taskUpdate(id,{status:"doing"},"Devolvida. Explique o que falta.");if(ok){openDrawer("task",id);setTimeout(()=>{const ta=$("#cm-in");if(ta){ta.placeholder="Explique o que falta ajustar…";ta.focus();}},350);}}
     else if(a==="block"){openDrawer("task",id);setTimeout(()=>{const k=$('#drawer [data-kind="block"]');if(k)k.click();},350);}
   });
   const lt=$("#log-text",m),ls=$("#log-task",m);
-  if(lt&&keep.text){lt.value=keep.text;}if(ls&&keep.task&&S.tasks[keep.task])ls.value=keep.task;if(lt&&keep.focus){lt.focus();lt.setSelectionRange(lt.value.length,lt.value.length);}
-  if($(".feed",m))$(".feed",m).scrollTop=keep.scroll;
-  const la=$("#log-add",m);if(la)la.onclick=async()=>{const txt=$("#log-text",m).value.trim();if(!txt){toast("Escreva o que você fez.");return;}la.disabled=true;
-    const tid=$("#log-task",m).value;const ok=await commentAdd("task",tid,"progress",txt);la.disabled=false;if(ok){const t2=$("#log-text");if(t2)t2.value="";toast("Avanço registrado.");}};
-  const no=$("#m-noowner",m);if(no)no.onclick=()=>{boardMode="tasks";boardPerson="none";go("quadro");};
+  if(lt&&keep.text)lt.value=keep.text;if(ls&&keep.task&&S.tasks[keep.task])ls.value=keep.task;if(lt&&keep.focus){lt.focus();}
+  const send=async()=>{const txt=lt.value.trim();if(!txt){toast("Escreva o que você fez.");return;}const la=$("#log-add",m);la.disabled=true;
+    const ok=await commentAdd("task",ls.value,"progress",txt);la.disabled=false;if(ok){const t2=$("#log-text");if(t2)t2.value="";toast("Avanço registrado.");}};
+  const la=$("#log-add",m);if(la){la.onclick=send;lt.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();send();}};}
+  const no=$("#m-noowner",m);if(no)no.onclick=()=>{boardPerson="none";go("quadro");};
 }
 function updateBadge(){
   const b=$("#tab-badge");if(!b)return;if(Store.mode!=="db"){b.hidden=true;return;}
@@ -1508,7 +1530,7 @@ function drawEpic(d,id){
     <div class="pbar"><i style="width:${pr*100}%"></i></div>
   </div>
   <div class="d-body">
-    <div class="d-sec"><h4>Status</h4><div class="seg seg6" role="group" aria-label="Status">${Object.entries(ST).map(([k,l])=>`<button data-st="${k}" aria-pressed="${(e.status||"todo")===k}" ${canWrite?"":"disabled"}>${l}</button>`).join("")}</div></div>
+    <div class="d-sec"><h4>Status</h4><div class="seg" role="group" aria-label="Status">${SIMPLE.map(k=>`<button data-st="${k}" aria-pressed="${simpleStatus(e.status)===k}" ${canWrite?"":"disabled"}>${ST[k]}</button>`).join("")}</div></div>
     <div class="d-sec"><h4>Entrega</h4><div class="deliver"><div class="eyebrow">Ao final desta etapa</div><input id="f-delivery" value="${esc(e.delivery||"")}" placeholder="O que fica pronto" ${canWrite?"":"readonly"}></div></div>
     <div class="d-sec"><h4>Tarefas e responsáveis <span class="mono">${(e.tasks||[]).filter(t=>t.done).length}/${(e.tasks||[]).length}</span></h4>
       ${Store.mode==="db"?taskRowsHtml(id):`<div class="tasks">${(e.tasks||[]).map(t=>`<div class="task ${t.done?"done":""}"><button class="cb" disabled>✓</button><span>${esc(t.text)}</span></div>`).join("")}</div>`}</div>
@@ -1588,7 +1610,11 @@ function addEpic(pid){
 
 /* ---------------- eventos globais ---------------- */
 function bindGlobal(){
-  $("#tabs").addEventListener("click",e=>{const b=e.target.closest(".tab");if(!b)return;go(b.dataset.v);});
+  $("#tabs").addEventListener("click",e=>{const b=e.target.closest(".tab");if(!b)return;
+    if(b.id==="tab-more"){e.stopPropagation();const mm=$("#more-menu");const r=b.getBoundingClientRect();mm.style.left=r.left+"px";mm.style.top=(r.bottom+6)+"px";mm.hidden=!mm.hidden;b.setAttribute("aria-expanded",String(!mm.hidden));return;}
+    go(b.dataset.v);});
+  document.addEventListener("click",e=>{const mm=$("#more-menu");if(mm&&!mm.hidden&&!e.target.closest("#more-menu")){mm.hidden=true;$("#tab-more").setAttribute("aria-expanded","false");}});
+  $("#more-menu").addEventListener("click",()=>{$("#more-menu").hidden=true;});
   window.addEventListener("hashchange",()=>{const v=location.hash.slice(1);if(v&&v!==view&&VIEWS.includes(v)){view=v;schedule();}});
   document.addEventListener("click",e=>{
     const a=e.target.closest("[data-add]");if(a){e.preventDefault();addEpic(a.dataset.add);return;}
@@ -1627,7 +1653,8 @@ function bindGlobal(){
   let rt=0;window.addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(()=>{drawWires();movePill();},80);});
 }
 function go(v){if(v===view)return;view=v;try{history.replaceState(null,"","#"+v);}catch(e){location.hash=v;}schedule();window.scrollTo({top:Math.min(window.scrollY,$(".hero").offsetHeight),behavior:REDUCED?"auto":"smooth"});}
-function movePill(){const b=$(`.tab[data-v="${view}"]`),p=$("#tab-pill");if(!b||!p)return;p.style.width=b.offsetWidth+"px";p.style.transform=`translateX(${b.offsetLeft}px)`;}
+function movePill(){const inMore=["linha","metricas","rituais"].includes(view);const mb=$("#tab-more");if(mb){mb.setAttribute("aria-selected",String(inMore));mb.textContent=(inMore?({linha:"Linha do tempo",metricas:"Métricas",rituais:"Rituais"})[view]:"Mais")+" ▾";}
+  const b=inMore?mb:$(`.tab[data-v="${view}"]`),p=$("#tab-pill");if(!b||!p)return;p.style.width=b.offsetWidth+"px";p.style.transform=`translateX(${b.offsetLeft}px)`;}
 
 /* ---------------- equipe: tarefas, responsáveis e comentários ---------------- */
 S.tasks={};S.comments={};
@@ -1644,7 +1671,10 @@ function avatar(email,size){
   return `<span class="av" style="--avbg:${bg};--avs:${size||22}px" title="${esc(n)}">${esc(email?(n.trim()[0]||"?").toUpperCase():"–")}</span>`;
 }
 function tasksOf(epicId){return Object.values(S.tasks).filter(t=>t.epic_id===epicId).sort((a,b)=>(a.sort-b.sort)||String(a.created_at).localeCompare(String(b.created_at)));}
-function attachTasks(){Object.entries(S.epics).forEach(([id,e])=>{e.tasks=tasksOf(id).map(t=>({id:t.id,text:t.title,done:t.status==="done",doneAt:t.done_at}));});}
+function attachTasks(){Object.entries(S.epics).forEach(([id,e])=>{e.tasks=tasksOf(id).flatMap(t=>{const cl=Array.isArray(t.checklist)?t.checklist:[];
+  if(!cl.length)return[{id:t.id,text:t.title,done:t.status==="done",doneAt:t.done_at}];
+  return cl.map(i=>({id:t.id+":"+i.id,text:i.text,done:!!i.done||t.status==="done",doneAt:i.doneAt||(t.status==="done"?t.done_at:null)}));});});}
+function checkCount(t){const cl=Array.isArray(t.checklist)?t.checklist:[];return{n:cl.length,d:cl.filter(i=>i.done).length};}
 function taskHealth(t){
   if(t.status==="done")return"done";if(t.status==="blocked")return"blocked";
   const cd=curDay();if(cd==null||t.due_day==null)return"planned";
@@ -1741,39 +1771,54 @@ function drawTask(d,id){
   const t=S.tasks[id];if(!t){closeDrawer();return;}
   const e=S.epics[t.epic_id]||{};const ph=S.phases[e.phase];const h=taskHealth(t);const can=canEditTask(t);const cd=curDay();
   const left=cd==null||t.due_day==null?null:t.due_day-cd;
-  const stBtns=Object.entries(ST).map(([k,l])=>{let dis=!can;let tip="";
+  const cl=Array.isArray(t.checklist)?t.checklist:[];const c=checkCount(t);
+  const canCheck=isAdmin()||(can&&t.status!=="done");
+  const cur=simpleStatus(t.status);
+  const stBtns=SIMPLE.map(k=>{let dis=!can;let tip="";
     if(!isAdmin()&&k==="done"){dis=true;tip="Só um admin aprova";}
     if(!isAdmin()&&t.status==="done"){dis=true;tip="Tarefa aprovada";}
-    return `<button data-tst="${k}" aria-pressed="${t.status===k}" ${dis?"disabled":""} title="${esc(tip)}">${l}</button>`;}).join("");
+    return `<button data-tst="${k}" aria-pressed="${cur===k}" ${dis?"disabled":""} title="${esc(tip)}">${ST[k]}</button>`;}).join("");
   d.innerHTML=`<div class="d-head">
-    <div class="d-head-row"><div class="d-crumbs">${ph?`<button data-open="phase:${esc(e.phase)}">${esc((ph.code||"")+" "+ph.name)}</button><span>›</span>`:""}<button data-open="epic:${esc(t.epic_id)}">${esc(e.title||"Etapa")}</button><span>›</span><span>Tarefa</span></div><button class="x" id="x" aria-label="Fechar">×</button></div>
-    ${isAdmin()?`<input class="d-title" id="t-title" value="${esc(t.title)}" aria-label="Texto da tarefa">`:`<h2 class="d-title" style="border:0">${esc(t.title)}</h2>`}
-    <div class="epic-row">${avatar(t.assignee,26)}<b>${esc(personName(t.assignee))}</b><span class="chip h-${t.status==="review"?"risk":h}"><i></i>${ST[t.status]}</span>
-      <span class="hint mono">${t.due_day!=null?"prazo "+dayLabel(t.due_day,true):"sem prazo"}${left==null||t.status==="done"?"":left<0?` · ${-left} dia(s) de atraso`:left===0?" · vence hoje":` · faltam ${left} dia(s)`}</span></div>
+    <div class="d-head-row"><div class="d-crumbs">${ph?`<span>${esc((ph.code||"")+" · "+ph.name)}</span><span>›</span>`:""}<button data-open="epic:${esc(t.epic_id)}">Ver etapa</button></div><button class="x" id="x" aria-label="Fechar">×</button></div>
+    ${isAdmin()?`<input class="d-title" id="t-title" value="${esc(t.title)}" aria-label="Nome da tarefa">`:`<h2 class="d-title" style="border:0">${esc(t.title)}</h2>`}
+    <div class="epic-row">${avatar(t.assignee,26)}<b>${esc(personName(t.assignee))}</b>
+      <span class="hint mono">${t.due_day!=null?"prazo "+dayLabel(t.due_day,true):"sem prazo"}${left==null||t.status==="done"?"":left<0?` · <span class="late">${-left} dia(s) de atraso</span>`:left===0?" · vence hoje":` · faltam ${left} dia(s)`}</span></div>
   </div>
   <div class="d-body">
-    ${t.status==="review"&&isAdmin()?`<div class="review-bar"><span>⏳ <b>${esc(personName(t.assignee))}</b> enviou para validação.</span><button class="btn btn-lime" id="t-approve">Aprovar</button><button class="btn" id="t-return">Devolver</button></div>`:""}
-    ${!can&&!isAdmin()?`<p class="hint lock">🔒 Só ${esc(personName(t.assignee))} ou um admin alteram esta tarefa. Você pode comentar.</p>`:""}
-    <div class="d-sec"><h4>Status</h4><div class="seg seg6" role="group" aria-label="Status da tarefa">${stBtns}</div>
-      ${can&&!isAdmin()?'<p class="hint">Terminou? Envie para <b>Em validação</b>: um admin aprova e marca como concluída.</p>':""}</div>
-    <div class="d-sec"><h4>Detalhes</h4><div class="fields">
-      <label class="field">Responsável<select id="t-who" ${isAdmin()?"":"disabled"}>${teamOptions(t.assignee||"")}</select></label>
-      ${isAdmin()?dayInput("t-due",t.due_day||e.dueDay||1,"Prazo"):`<label class="field">Prazo<input value="${t.due_day!=null?esc(dayLabel(t.due_day,true)):"—"}" readonly></label>`}
-      <label class="field">Prioridade<select id="t-pri" ${isAdmin()?"":"disabled"}>${["P0","P1","P2","P3"].map(p=>`<option ${t.priority===p?"selected":""}>${p}</option>`).join("")}</select></label>
-      <label class="field">Etapa<input value="${esc(e.title||"")}" readonly></label>
-    </div><p class="hint">Prazo da etapa: ${dayLabel(e.dueDay||0,true)} · Fim do ciclo: ${dayLabel(TOTAL(),true)}</p></div>
+    ${t.status==="review"&&isAdmin()?`<div class="review-bar"><span>⏳ <b>${esc(personName(t.assignee))}</b> terminou e pediu validação.</span><button class="btn btn-lime" id="t-approve">Aprovar</button><button class="btn" id="t-return">Devolver</button></div>`:""}
+    ${t.status==="blocked"?`<div class="review-bar block-bar"><span>⛔ Tarefa bloqueada. Veja o motivo nas atualizações.</span>${can?'<button class="btn" id="t-unblock">Desbloquear</button>':""}</div>`:""}
+    <div class="d-sec"><h4>Status</h4><div class="seg" role="group" aria-label="Status da tarefa">${stBtns}</div>
+      ${!can&&!isAdmin()?`<p class="hint">🔒 Só ${esc(personName(t.assignee))} ou um admin mudam esta tarefa. Você pode comentar.</p>`:""}</div>
+    <div class="d-sec"><h4>Checklist <span class="mono">${t.status==="done"?c.n:c.d}/${c.n}</span></h4>
+      <div class="tasks">${cl.map(i=>`<div class="task ${i.done||t.status==="done"?"done":""}"><button class="cb" data-ck="${esc(i.id)}" aria-label="${i.done?"Desmarcar":"Marcar"} item" ${canCheck?"":"disabled"}>✓</button><span class="tr-title">${esc(i.text)}</span>${isAdmin()?`<button class="rm" data-ckrm="${esc(i.id)}" aria-label="Remover item">×</button>`:""}</div>`).join("")||'<p class="hint">Sem itens.</p>'}</div>
+      ${isAdmin()?`<div class="add-row"><input class="inp" id="ck-in" placeholder="Novo item do checklist…"><button class="btn" id="ck-add">Adicionar</button></div>`:""}
+      ${can&&!isAdmin()&&c.n&&c.d===c.n&&t.status!=="review"&&t.status!=="done"?`<button class="btn btn-lime" id="t-send" style="justify-self:start">Tudo feito! Enviar para validação</button>`:""}</div>
+    ${isAdmin()?`<div class="d-sec"><h4>Responsável e prazo</h4><div class="fields">
+      <label class="field">Responsável<select id="t-who">${teamOptions(t.assignee||"")}</select></label>
+      ${dayInput("t-due",t.due_day||e.dueDay||1,"Prazo")}
+    </div></div>`:""}
     <div class="d-sec"><h4>Atualizações</h4>${timelineHtml("task",id)}</div>
     ${isAdmin()?`<div class="d-sec" id="tdel-zone"><button class="btn btn-quiet" id="t-del" style="color:var(--bad);justify-self:start">Excluir esta tarefa</button></div>`:""}
   </div>`;
   $("#x",d).onclick=closeDrawer;
-  $$("[data-tst]",d).forEach(b=>b.onclick=()=>{if(b.dataset.tst===t.status)return;taskUpdate(id,{status:b.dataset.tst},`Status: ${ST[b.dataset.tst]}.`);});
+  $$("[data-tst]",d).forEach(b=>b.onclick=()=>{if(b.dataset.tst===cur)return;taskUpdate(id,{status:b.dataset.tst},`Status: ${ST[b.dataset.tst]}.`);});
+  $$("[data-ck]",d).forEach(b=>b.onclick=async()=>{
+    const list=clone(cl);const it=list.find(x=>x.id===b.dataset.ck);if(!it)return;it.done=!it.done;it.doneAt=it.done?new Date().toISOString():null;
+    const patch={checklist:list};if(it.done&&["todo","backlog"].includes(t.status))patch.status="doing";
+    const ok=await taskUpdate(id,patch);if(ok){const all=list.length&&list.every(x=>x.done);if(all&&!isAdmin())toast("Tudo marcado! Envie para validação.");}
+    renderDrawer();const pb=$(`[data-ck="${CSS.escape(b.dataset.ck)}"]`,$("#drawer"));if(pb)pb.classList.add("pop");});
+  $$("[data-ckrm]",d).forEach(b=>b.onclick=()=>taskUpdate(id,{checklist:cl.filter(x=>x.id!==b.dataset.ckrm)}).then(()=>renderDrawer()));
+  const ci=$("#ck-in",d);if(ci){const add=async()=>{const v=ci.value.trim();if(!v)return;const list=clone(cl).concat({id:Date.now().toString(36),text:v,done:false});
+    if(await taskUpdate(id,{checklist:list})){renderDrawer();setTimeout(()=>{const n=$("#ck-in");if(n)n.focus();},0);}};
+    $("#ck-add",d).onclick=add;ci.onkeydown=ev=>{if(ev.key==="Enter"){ev.preventDefault();add();}};}
+  const sd=$("#t-send",d);if(sd)sd.onclick=()=>taskUpdate(id,{status:"review"},"Enviada para validação.").then(()=>renderDrawer());
+  const ub=$("#t-unblock",d);if(ub)ub.onclick=()=>taskUpdate(id,{status:"doing"},"Tarefa desbloqueada.").then(()=>renderDrawer());
   const ap=$("#t-approve",d);if(ap)ap.onclick=()=>taskUpdate(id,{status:"done"},"Tarefa aprovada.");
-  const rt=$("#t-return",d);if(rt)rt.onclick=async()=>{const ok=await taskUpdate(id,{status:"doing"},"Tarefa devolvida para Em andamento.");if(ok){renderDrawer();const ta=$("#cm-in");if(ta){ta.placeholder="Explique o que falta ajustar…";ta.focus();}}};
+  const rt=$("#t-return",d);if(rt)rt.onclick=async()=>{const ok=await taskUpdate(id,{status:"doing"},"Devolvida para Fazendo.");if(ok){renderDrawer();const ta=$("#cm-in");if(ta){ta.placeholder="Explique o que falta ajustar…";ta.focus();}}};
   if(isAdmin()){
     const tt=$("#t-title",d);tt.onchange=()=>{const v=tt.value.trim();if(v)taskUpdate(id,{title:v});};
     $("#t-who",d).onchange=ev=>taskUpdate(id,{assignee:ev.target.value||null},ev.target.value?"Atribuída a "+personName(ev.target.value)+".":"Responsável removido.");
     const du=$("#t-due",d);du.onchange=()=>{const v=readDay(du);if(v!=null)taskUpdate(id,{due_day:Math.max(1,v)},"Prazo atualizado.");};
-    $("#t-pri",d).onchange=ev=>taskUpdate(id,{priority:ev.target.value});
     $("#t-del",d).onclick=()=>{$("#tdel-zone",d).innerHTML=`<div class="confirm"><span>Excluir esta tarefa e o histórico dela? Não dá para desfazer.</span><button class="btn btn-danger" id="td-y">Excluir</button><button class="btn" id="td-n">Cancelar</button></div>`;
       $("#td-n",d).onclick=()=>renderDrawer();$("#td-y",d).onclick=async()=>{const eid=t.epic_id;if(await taskDelete(id)){toast("Tarefa excluída.");openDrawer("epic",eid);}};};
   }
@@ -1783,7 +1828,7 @@ function drawTask(d,id){
 
 /* ---------------- quem está online ---------------- */
 let ONLINE={},presCh=null;
-const VIEW_LABEL={minha:"Minha área",equipe:"Equipe",mapa:"Mapa",linha:"Linha do tempo",quadro:"Quadro",metricas:"Métricas",rituais:"Rituais"};
+const VIEW_LABEL={minha:"Início",equipe:"Equipe",mapa:"Plano",linha:"Linha do tempo",quadro:"Quadro",metricas:"Métricas",rituais:"Rituais"};
 function presenceOf(email){const p=TEAM[email];if(!p)return null;if(email===myEmail())return{away:document.hidden,view};return p.uid&&ONLINE[p.uid]?ONLINE[p.uid]:null;}
 function presenceText(email){
   const o=presenceOf(email);const p=TEAM[email]||{};
