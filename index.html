@@ -356,6 +356,34 @@ main{padding-block:26px 80px}
 @media (max-width:1000px){.hero-sm .hero-grid{grid-template-columns:1fr}}
 @media (max-width:560px){.hero-sm .owner-name{font-size:22px}.hero-sm .ident-row{gap:10px}}
 @media (max-width:700px){.top .wrap{flex-wrap:wrap;row-gap:6px;padding-block:6px}.tabs{order:5;flex:1 1 100%}.brand{margin-right:auto}.top .fs-ctl,.top .sync{display:none}.m-col .m-row{grid-template-columns:minmax(0,1fr)}.m-col .m-side{justify-content:flex-start}}
+
+/* ---------- quadro do time ---------- */
+.av-stack{display:inline-flex;align-items:center}
+.av-stack .av{margin-left:-6px}.av-stack .av:first-child{margin-left:0}
+.av-more{margin-left:4px;font-size:11px;color:var(--muted);font-weight:700}
+.newtask{display:grid;gap:10px;margin-bottom:14px;padding:12px 14px}
+.nt-title{font-size:calc(16px * var(--fs));padding:11px 12px}
+.nt-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.nt-row .k-person select{max-width:300px}
+.nt-row .btn{margin-left:auto}
+.pchips{display:flex;flex-wrap:wrap;gap:6px}
+.pchip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:3px 10px 3px 3px;font-size:calc(12.5px * var(--fs));font-weight:600;transition:all .2s}
+.pchip[aria-pressed="true"]{border-color:var(--accent);color:var(--ink);background:color-mix(in srgb,var(--accent) 16%,var(--surface))}
+.pchip:not([disabled]):hover{border-color:var(--sage)}
+.pchip[disabled]{cursor:default;opacity:.85}
+.pchip[disabled][aria-pressed="false"]{display:none}
+.k-acts{display:flex;gap:6px;flex-wrap:wrap}
+.k-acts .qa{padding:4px 10px;font-size:calc(12px * var(--fs))}
+.kcard .k-sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.st-tag{display:inline-flex;align-items:center;gap:5px;font-size:calc(11.5px * var(--fs));font-weight:700;padding:3px 9px;border-radius:999px;color:var(--sc);background:color-mix(in srgb,var(--sc) 16%,transparent);white-space:nowrap}
+.tdot{width:10px;height:10px;border-radius:50%;justify-self:center}
+.objs{display:grid;gap:8px;margin-top:8px}
+.obj{display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center;text-align:left;border:1px solid var(--line);background:var(--surface-2);border-radius:10px;padding:9px 11px;color:var(--ink);transition:border-color .2s}
+.obj:hover{border-color:var(--accent)}
+.obj-t{font-size:calc(13.5px * var(--fs));font-weight:500}
+.obj-n{font-size:calc(12px * var(--fs));color:var(--muted)}
+.obj .pbar{grid-column:1/-1}
+.m-feed{position:static}
 /* quem está online */
 .online-wrap{position:relative;flex:none}
 .on-btn{display:flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--on-forest);border-radius:999px;padding:3px 12px 3px 4px;transition:background .2s,border-color .2s}
@@ -927,7 +955,8 @@ function health(e){
   return"ontrack";
 }
 const HL={done:"Concluída",ontrack:"No prazo",risk:"Em risco",late:"Atrasada",upcoming:"Próxima",planned:"Planejada",blocked:"Bloqueada"};
-const ST={backlog:"A fazer",todo:"A fazer",doing:"Fazendo",review:"Em validação",blocked:"Bloqueada",done:"Concluída"};
+const ST={backlog:"A fazer",todo:"A fazer",doing:"Em andamento",review:"Em validação",blocked:"Em andamento",done:"Concluído"};
+const STC={todo:"#c9c3b8",doing:"#f6a524",review:"#ee7a45",done:"#5cc27e"};
 const SIMPLE=["todo","doing","review","done"];
 const simpleStatus=s=>s==="backlog"?"todo":s==="blocked"?"doing":(s||"todo");
 const KCOLS=[
@@ -939,41 +968,64 @@ const HCOL={done:"var(--ok)",ontrack:"var(--info)",risk:"var(--warn)",late:"var(
 let boardPhase="all",boardSprint=false,boardMode="tasks",boardPerson="all";
 function modeToggle(){return "";return Store.mode==="db"?`<div class="k-mode" role="group" aria-label="O que mostrar"><button data-km="tasks" aria-pressed="${boardMode==="tasks"}">Tarefas</button><button data-km="epics" aria-pressed="${boardMode==="epics"}">Etapas</button></div>`:"";}
 function bindModeToggle(m){$$("[data-km]",m).forEach(b=>b.onclick=()=>{boardMode=b.dataset.km;renderBoard(m);});}
+let boardEpic="all",lastEpic=null,newPeople=null;
+function defaultEpic(){
+  if(boardEpic!=="all"&&S.epics[boardEpic])return boardEpic;
+  if(lastEpic&&S.epics[lastEpic])return lastEpic;
+  const ph=currentPhase();const list=ph?epicsOf(ph.id):allEpics();
+  const open=list.find(e=>simpleStatus(e.status)!=="done");return (open||list[0]||allEpics()[0]||{}).id;
+}
 function renderTaskBoard(m){
-  const cd=curDay();const me_=myEmail();
+  const keep={title:$("#nt-title",m)?$("#nt-title",m).value:"",focus:document.activeElement&&document.activeElement.id==="nt-title",epic:$("#nt-epic",m)?$("#nt-epic",m).value:null};
+  if(newPeople===null)newPeople=[myEmail()];
+  const me_=myEmail();
   const all=Object.values(S.tasks).filter(t=>S.epics[t.epic_id]);
-  const es=all.filter(t=>{const e=S.epics[t.epic_id];
-    if(boardPhase!=="all"&&e.phase!==boardPhase)return false;
-    if(boardPerson==="me")return t.assignee===me_;
-    if(boardPerson==="none")return !t.assignee;
-    if(boardPerson!=="all")return t.assignee===boardPerson;
-    return true;}).sort((a,b)=>((a.due_day||999)-(b.due_day||999)));
+  const es=all.filter(t=>(boardEpic==="all"||t.epic_id===boardEpic)&&(boardPerson==="all"||(boardPerson==="me"?tHas(t,me_):boardPerson==="none"?!tWho(t).length:tHas(t,boardPerson))))
+    .sort((a,b)=>String(b.updated_at||b.created_at||"").localeCompare(String(a.updated_at||a.created_at||"")));
   const people=Object.entries(TEAM).filter(([,p])=>p.access!=="leitor").sort((a,b)=>a[1].name.localeCompare(b[1].name));
-  const card=(t,col)=>{const e=S.epics[t.epic_id];const ph=S.phases[e.phase];const h=taskHealth(t);const can=canEditTask(t);
-    const left=cd==null||t.due_day==null?null:t.due_day-cd;const late=h==="late";const c=checkCount(t);
-    return `<div class="kcard ${t.assignee===me_?"mine":""}" draggable="${can}" data-tid="${esc(t.id)}" data-open="task:${esc(t.id)}" tabindex="0" role="button" style="--c:${col.c};--hc:${HCOL[h]}" title="${esc(t.title)} · ${esc(personName(t.assignee))}">
+  const card=(t,col)=>{const e=S.epics[t.epic_id];const can=canEditTask(t);const st=simpleStatus(t.status);
+    const nC=commentsOf("task",t.id).filter(c=>c.kind!=="system").length;
+    let acts="";
+    if(st==="review"&&isAdmin())acts=`<button class="qa qa-ok" data-kq="done" data-id="${esc(t.id)}">✓ Conferido</button><button class="qa" data-kq="doing" data-id="${esc(t.id)}">↩ Devolver</button>`;
+    else if(st==="review")acts=`<span class="qa-wait">⏳ aguardando conferência</span>`;
+    else if(can&&st==="todo")acts=`<button class="qa" data-kq="doing" data-id="${esc(t.id)}">▶ Começar</button>`;
+    else if(can&&st==="doing")acts=`<button class="qa qa-ok" data-kq="${isAdmin()?"done":"review"}" data-id="${esc(t.id)}">✓ Concluí</button>`;
+    return `<div class="kcard ${tHas(t,me_)?"mine":""}" draggable="${can&&!(st==="done"&&!isAdmin())}" data-tid="${esc(t.id)}" data-open="task:${esc(t.id)}" tabindex="0" role="button" style="--c:${col.c};--hc:${col.c}" title="${esc(t.title)}">
       <h4>${esc(t.title)}</h4>
-      <div class="k-sub">${ph?esc((ph.code||"")+" · "+ph.name):""}${t.status==="blocked"?'<span class="k-block">⛔ bloqueada</span>':""}</div>
-      ${c.n?`<div class="k-check"><span class="k-cbar"><i style="width:${(t.status==="done"?1:c.d/c.n)*100}%"></i></span><span class="mono">${t.status==="done"?c.n:c.d}/${c.n}</span></div>`:""}
-      <div class="k-foot">${avatar(t.assignee,22)}<span class="k-who">${esc(t.assignee===me_?"Você":personName(t.assignee))}</span><span class="k-due ${late?"late":""}">${t.due_day==null||t.status==="done"?"":left==null?dayLabel(t.due_day):late?Math.abs(left)+"d atraso":left===0?"hoje":dayLabel(t.due_day)}</span></div>
+      <div class="k-sub">🎯 ${esc(e.title)}</div>
+      <div class="k-foot">${tWhoAv(t,22)}<span class="k-who">${esc(tWhoNames(t))}</span>${nC?`<span class="tr-c">💬 ${nC}</span>`:""}</div>
+      ${acts?`<div class="k-acts">${acts}</div>`:""}
     </div>`;};
-  m.innerHTML=`<section class="view"><div class="view-head"><div><h2>Quadro</h2><p>${isAdmin()?"Arraste os cartões. O que chega em Em validação espera a sua aprovação.":"Arraste as suas tarefas. Terminou? Mande para Em validação."}</p></div>
-      <label class="k-person"><span>Pessoa</span><select id="k-person" class="inp">
-        <option value="all" ${boardPerson==="all"?"selected":""}>Todas</option>
-        ${ACCESS!=="leitor"?`<option value="me" ${boardPerson==="me"?"selected":""}>Só as minhas</option>`:""}
-        <option value="none" ${boardPerson==="none"?"selected":""}>Sem responsável</option>
-        ${people.map(([em,p])=>`<option value="${esc(em)}" ${boardPerson===em?"selected":""}>${esc(p.name)}</option>`).join("")}
-      </select></label></div>
-    <div class="k-filters" role="group" aria-label="Filtrar por fase" style="margin-bottom:14px">
-      <button class="k-chip" data-kf="all" aria-pressed="${boardPhase==="all"}">Todas as fases</button>
-      ${phasesSorted().map(p=>`<button class="k-chip" data-kf="${esc(p.id)}" aria-pressed="${boardPhase===p.id}">${esc((p.code||"")+" "+p.name)}</button>`).join("")}
-    </div>
+  m.innerHTML=`<section class="view"><div class="view-head"><div><h2>Quadro</h2><p>${isAdmin()?"Crie tarefas, acompanhe o andamento e confira o que chegar em Em validação.":"Crie suas tarefas e vá movendo. Concluiu? Ela vai para Em validação e o admin confere."}</p></div>
+      <div class="k-filters">
+        <label class="k-person"><span>Objetivo</span><select id="k-epic" class="inp">${epicOptions(boardEpic,true)}</select></label>
+        <label class="k-person"><span>Pessoa</span><select id="k-person" class="inp">
+          <option value="all" ${boardPerson==="all"?"selected":""}>Todas</option>
+          ${ACCESS!=="leitor"?`<option value="me" ${boardPerson==="me"?"selected":""}>Só as minhas</option>`:""}
+          <option value="none" ${boardPerson==="none"?"selected":""}>Sem responsável</option>
+          ${people.map(([em,p])=>`<option value="${esc(em)}" ${boardPerson===em?"selected":""}>${esc(p.name)}</option>`).join("")}
+        </select></label></div></div>
+    ${canComment()?`<form class="newtask panel" id="newtask" autocomplete="off">
+      <input class="inp nt-title" id="nt-title" placeholder="+ Nova tarefa: o que vai ser feito?" aria-label="Nova tarefa">
+      <div class="nt-row"><label class="k-person"><span>🎯</span><select class="inp" id="nt-epic" aria-label="Objetivo">${epicOptions(keep.epic&&S.epics[keep.epic]?keep.epic:defaultEpic(),false)}</select></label>
+        ${peopleChips(newPeople,"np",false)}<button class="btn btn-lime" type="submit">Criar</button></div></form>`:""}
     <div class="kboard-scroll"><div class="kboard k4">${KCOLS.map(col=>{const list=es.filter(t=>simpleStatus(t.status)===col.k);
       return `<div class="kcol" data-col="${col.k}" style="--c:${col.c}">
         <div class="kcol-head"><div class="kcol-title"><h3><i></i>${ST[col.k]}</h3><span class="kcount">${list.length}</span></div></div>
-        <div class="kcol-list">${list.map(t=>card(t,col)).join("")||`<div class="k-empty">${boardPerson==="me"?"Nada seu aqui":"Vazio"}</div>`}</div></div>`;}).join("")}</div></div></section>`;
-  $$("[data-kf]",m).forEach(b=>b.onclick=()=>{boardPhase=b.dataset.kf;renderBoard(m);});
+        <div class="kcol-list">${list.map(t=>card(t,col)).join("")||`<div class="k-empty">${col.k==="todo"&&!all.length?"Crie a primeira tarefa acima":"Vazio"}</div>`}</div></div>`;}).join("")}</div></div></section>`;
+  const ti=$("#nt-title",m);if(ti){ti.value=keep.title;if(keep.focus){ti.focus();}}
+  $("#k-epic",m).onchange=ev=>{boardEpic=ev.target.value;renderBoard(m);};
   $("#k-person",m).onchange=ev=>{boardPerson=ev.target.value;renderBoard(m);};
+  $$("[data-np]",m).forEach(b=>b.onclick=()=>{const em=b.dataset.np;newPeople=newPeople.includes(em)?newPeople.filter(x=>x!==em):newPeople.concat(em);b.setAttribute("aria-pressed",String(newPeople.includes(em)));});
+  const f=$("#newtask",m);if(f)f.onsubmit=async ev=>{ev.preventDefault();const title=ti.value.trim();if(!title){ti.focus();return;}
+    const ep=$("#nt-epic",m).value;let ppl=newPeople.slice();
+    if(ACCESS==="membro"&&!ppl.includes(myEmail())){ppl.push(myEmail());toast("Você foi incluída na tarefa, porque quem cria participa.");}
+    const btn=f.querySelector("button[type=submit]");btn.disabled=true;const r=await taskInsert(ep,title,ppl);btn.disabled=false;
+    if(r){lastEpic=ep;ti.value="";toast("Tarefa criada em A fazer.");setTimeout(()=>{const n=$("#nt-title");if(n)n.focus();},0);}};
+  $$("[data-kq]",m).forEach(b=>b.onclick=async ev=>{ev.stopPropagation();const id=b.dataset.id;const to=b.dataset.kq;const t=S.tasks[id];if(!t)return;
+    const msg=to==="review"?"Enviado para Em validação.":to==="done"?"Conferido e concluído.":t.status==="review"?"Devolvida para Em andamento.":"Em andamento.";
+    const ok=await taskUpdate(id,{status:to},msg);
+    if(ok&&t.status==="doing"&&isAdmin()&&b.textContent.includes("Devolver")){openDrawer("task",id);setTimeout(()=>{const ta=$("#cm-in");if(ta){ta.placeholder="Explique o que falta ajustar…";ta.focus();}},350);}});
   $$(".kcard[data-tid]",m).forEach(c=>{
     c.addEventListener("dragstart",ev=>{ev.dataTransfer.setData("text/plain",c.dataset.tid);ev.dataTransfer.effectAllowed="move";c.classList.add("dragging");});
     c.addEventListener("dragend",()=>{c.classList.remove("dragging");$$(".kcol.drag-over",m).forEach(x=>x.classList.remove("drag-over"));});
@@ -981,11 +1033,11 @@ function renderTaskBoard(m){
   $$(".kcol",m).forEach(col=>{
     col.addEventListener("dragover",ev=>{ev.preventDefault();ev.dataTransfer.dropEffect="move";col.classList.add("drag-over");});
     col.addEventListener("dragleave",ev=>{if(!col.contains(ev.relatedTarget))col.classList.remove("drag-over");});
-    col.addEventListener("drop",ev=>{ev.preventDefault();col.classList.remove("drag-over");const id=ev.dataTransfer.getData("text/plain");const t=S.tasks[id];const to=col.dataset.col;
+    col.addEventListener("drop",ev=>{ev.preventDefault();col.classList.remove("drag-over");const id=ev.dataTransfer.getData("text/plain");const t=S.tasks[id];let to=col.dataset.col;
       if(!t||simpleStatus(t.status)===to)return;
-      if(!canEditTask(t)){toast("Só "+personName(t.assignee)+" ou um admin movem esta tarefa.");return;}
-      if(to==="done"&&!isAdmin()){toast("Mande para Em validação: um admin aprova.");return;}
-      taskUpdate(id,{status:to},`"${t.title.slice(0,40)}${t.title.length>40?"…":""}" → ${ST[to]}`);});
+      if(!canEditTask(t)){toast("Só as pessoas da tarefa ou um admin movem este cartão.");return;}
+      if(to==="done"&&!isAdmin()){to="review";if(t.status==="review")return;}
+      taskUpdate(id,{status:to},to==="review"&&!isAdmin()?"Enviado para Em validação: o admin confere.":`"${t.title.slice(0,40)}${t.title.length>40?"…":""}" → ${ST[to]}`);});
   });
 }
 function phaseProg(pid){const es=epicsOf(pid);if(!es.length)return 0;let t=0,d=0;es.forEach(e=>{const n=(e.tasks||[]).length||1;t+=n;d+=prog(e)*n;});return d/t;}
@@ -1199,20 +1251,20 @@ function renderBoard(m){
 function ago(ts){const s=(Date.now()-new Date(ts))/1000;if(s<60)return"agora";if(s<3600)return"há "+Math.floor(s/60)+" min";if(s<86400)return"há "+Math.floor(s/3600)+" h";const d=Math.floor(s/86400);return d===1?"ontem":"há "+d+" dias";}
 function dueText(t){const cd=curDay();if(t.due_day==null)return"sem prazo";if(cd==null||t.status==="done")return dayLabel(t.due_day);const l=t.due_day-cd;return l<0?Math.abs(l)+"d de atraso":l===0?"vence hoje":l===1?"vence amanhã":"em "+l+" dias";}
 function mineRow(t,mode){
-  const e=S.epics[t.epic_id]||{};const ph=S.phases[e.phase];const h=taskHealth(t);const can=canEditTask(t);
+  const e=S.epics[t.epic_id]||{};const can=canEditTask(t);const st=simpleStatus(t.status);
   const nC=commentsOf("task",t.id).filter(c=>c.kind!=="system").length;
   let acts="";
-  if(mode==="queue"){acts=isAdmin()?`<button class="qa qa-ok" data-qa="approve" data-id="${esc(t.id)}">Aprovar</button><button class="qa" data-qa="return" data-id="${esc(t.id)}">Devolver</button>`:"";}
+  if(mode==="queue"&&isAdmin())acts=`<button class="qa qa-ok" data-qa="approve" data-id="${esc(t.id)}">✓ Conferido</button><button class="qa" data-qa="return" data-id="${esc(t.id)}">↩ Devolver</button>`;
   else if(can){
-    if(["backlog","todo"].includes(t.status))acts=`<button class="qa qa-ok" data-qa="start" data-id="${esc(t.id)}">▶ Comecei</button>`;
-    else if(t.status==="doing")acts=`<button class="qa qa-ok" data-qa="review" data-id="${esc(t.id)}">Enviar p/ validação</button><button class="qa qa-bad" data-qa="block" data-id="${esc(t.id)}" title="Estou bloqueado">⛔</button>`;
-    else if(t.status==="blocked")acts=`<button class="qa" data-qa="start" data-id="${esc(t.id)}">Retomar</button>`;
-    else if(t.status==="review")acts=`<span class="qa-wait">⏳ aguardando aprovação</span>`;
+    if(st==="todo")acts=`<button class="qa" data-qa="start" data-id="${esc(t.id)}">▶ Começar</button>`;
+    else if(st==="doing")acts=`<button class="qa qa-ok" data-qa="${isAdmin()?"approve":"review"}" data-id="${esc(t.id)}">✓ Concluí</button>`;
+    else if(st==="review")acts=`<span class="qa-wait">⏳ aguardando conferência</span>`;
   }
-  return `<div class="m-row" data-open="task:${esc(t.id)}" tabindex="0" role="button" style="--hc:${HCOL[h]}">
+  const others=tWho(t).filter(x=>x!==myEmail());
+  return `<div class="m-row" data-open="task:${esc(t.id)}" tabindex="0" role="button" style="--hc:${STC[st]}">
     <div class="m-main"><span class="m-title">${esc(t.title)}</span>
-      <span class="m-sub">${ph?esc((ph.code||"")+" · "+ph.name):""}${mode==="queue"||mode==="all"?` · ${esc(personName(t.assignee))}`:""}${checkCount(t).n?` · ✓ ${checkCount(t).d}/${checkCount(t).n}`:""}${nC?` · 💬 ${nC}`:""}</span></div>
-    <div class="m-side"><span class="m-due ${h==="late"?"late":""}">${esc(dueText(t))}</span><span class="chip h-${t.status==="review"?"risk":h}"><i></i>${ST[t.status]}</span>${mode==="queue"||mode==="all"?avatar(t.assignee,24):""}</div>
+      <span class="m-sub">🎯 ${esc(e.title||"")}${mode==="queue"?` · ${esc(tWhoNames(t))}`:others.length?` · com ${esc(others.map(personName).join(", "))}`:""}${nC?` · 💬 ${nC}`:""}</span></div>
+    <div class="m-side">${mode==="queue"?tWhoAv(t,24):`<span class="st-tag" style="--sc:${STC[st]}">${ST[st]}</span>`}</div>
     ${acts?`<div class="m-acts">${acts}</div>`:""}
   </div>`;
 }
@@ -1228,52 +1280,44 @@ function feedHtml(limit){
 }
 function renderMine(m){
   if(Store.mode!=="db"){renderMap(m);return;}
-  const keep={text:$("#log-text",m)?$("#log-text",m).value:"",task:$("#log-task",m)?$("#log-task",m).value:"",focus:document.activeElement&&document.activeElement.id==="log-text"};
   const cd=curDay(),T=TOTAL(),meE=myEmail(),ph=currentPhase(),pMe=TEAM[meE]||{};
-  const byDue=(a,b)=>(a.due_day??999)-(b.due_day??999);
-  const isLate=t=>t.status!=="review"&&cd!=null&&t.due_day!=null&&t.due_day<cd;
-  const mine=Object.values(S.tasks).filter(t=>t.assignee===meE&&S.epics[t.epic_id]);
-  const open=mine.filter(t=>t.status!=="done").sort((a,b)=>(isLate(b)-isLate(a))||byDue(a,b));
-  const attention=Object.values(S.tasks).filter(t=>(t.status==="review"||t.status==="blocked")&&S.epics[t.epic_id]).sort((a,b)=>(a.status==="review"?0:1)-(b.status==="review"?0:1)||byDue(a,b));
-  const noOwner=Object.values(S.tasks).filter(t=>!t.assignee&&t.status!=="done"&&S.epics[t.epic_id]).length;
+  const mine=Object.values(S.tasks).filter(t=>tHas(t,meE)&&S.epics[t.epic_id]);
+  const by=k=>mine.filter(t=>simpleStatus(t.status)===k);
+  const queue=Object.values(S.tasks).filter(t=>t.status==="review"&&S.epics[t.epic_id]);
   const left=n=>n<0?"encerrada":n===0?"termina hoje":`faltam ${n} dia${n===1?"":"s"}`;
   const hello=new Date().getHours()<12?"Bom dia":new Date().getHours()<18?"Boa tarde":"Boa noite";
   const where=cd==null?"O dia de início ainda não foi definido.":ph?`Estamos na fase <b>${esc((ph.code||"")+" · "+ph.name)}</b>, que termina em ${dayLabel(ph.endDay)} (${left(ph.endDay-cd)}). O projeto acaba em ${dayLabel(T,true)}.`:`O projeto acaba em ${dayLabel(T,true)}.`;
-  m.innerHTML=`<section class="view"><div class="view-head"><div><h2>${hello}, ${esc(pMe.name||"")}</h2><p class="m-where">${where}</p></div></div>
+  const objs=(ph?epicsOf(ph.id):phasesSorted().length?epicsOf(phasesSorted()[0].id):[]);
+  const group=(title,list)=>list.length?`<div class="m-group"><h3>${title} <span class="kcount">${list.length}</span></h3>${list.map(t=>mineRow(t,"mine")).join("")}</div>`:"";
+  m.innerHTML=`<section class="view"><div class="view-head"><div><h2>${hello}, ${esc(pMe.name||"")}</h2><p class="m-where">${where}</p></div>${canComment()?`<button class="btn btn-lime" id="m-new">+ Nova tarefa</button>`:""}</div>
     <div class="m-grid">
       <div class="m-col">
-        ${isAdmin()&&(attention.length||noOwner)?`<div class="panel m-admin"><h3>Precisa de você <span class="kcount over">${attention.length}</span></h3>
-          ${attention.map(t=>mineRow(t,t.status==="review"?"queue":"all")).join("")}
-          ${noOwner?`<p class="hint">📌 ${noOwner} tarefa${noOwner>1?"s":""} sem responsável. <button class="f-link" id="m-noowner">Distribuir</button></p>`:""}</div>`:""}
-        ${ACCESS!=="leitor"?`<div class="panel"><h3>Minhas tarefas <span class="kcount">${open.length}</span></h3>
-          <div class="m-list">${open.map(t=>mineRow(t,"mine")).join("")||'<p class="hint">Nenhuma tarefa com você agora.</p>'}</div></div>
-        ${open.length?`<div class="panel m-log"><h3>O que você fez hoje?</h3>
-          <select class="inp" id="log-task" aria-label="Tarefa">${open.map(t=>`<option value="${esc(t.id)}">${esc(t.title)}</option>`).join("")}</select>
-          <div class="add-row"><input class="inp" id="log-text" placeholder="Ex.: liguei para 12 leads e reativei 4."><button class="btn btn-lime" id="log-add">Registrar</button></div></div>`:""}`
-        :`<div class="panel"><h3>Em validação</h3>${attention.filter(t=>t.status==="review").map(t=>mineRow(t,"all")).join("")||'<p class="hint">Nada aguardando.</p>'}</div>`}
+        ${isAdmin()?`<div class="panel m-admin"><h3>Para você conferir <span class="kcount ${queue.length?"over":""}">${queue.length}</span></h3>${queue.map(t=>mineRow(t,"queue")).join("")||'<p class="hint">Nada esperando conferência.</p>'}</div>`:""}
+        ${ACCESS!=="leitor"?`<div class="panel"><h3>Minhas tarefas</h3>
+          ${group("Em andamento",by("doing"))}${group("A fazer",by("todo"))}${group("Em validação",by("review"))}
+          ${mine.filter(t=>t.status!=="done").length?"":'<p class="hint">Nenhuma tarefa sua em aberto. Crie uma em <b>+ Nova tarefa</b>.</p>'}
+          ${by("done").length?`<p class="hint">✅ ${by("done").length} tarefa${by("done").length>1?"s":""} sua${by("done").length>1?"s":""} já conferida${by("done").length>1?"s":""}.</p>`:""}</div>`:""}
       </div>
-      <aside class="panel m-feed"><h3>Atividade do time</h3><div class="feed">${feedHtml(15)}</div></aside>
+      <aside class="m-col">
+        <div class="panel"><h3>Objetivos ${ph?"da fase":""}</h3><div class="objs">${objs.map(e=>{const ts=tasksOf(e.id);const dn=ts.filter(t=>t.status==="done").length;const pc=ts.length?dn/ts.length:0;
+          return `<button class="obj" data-open="epic:${esc(e.id)}"><span class="obj-t">🎯 ${esc(e.title)}</span><span class="obj-n mono">${dn}/${ts.length}</span><span class="pbar"><i style="width:${pc*100}%"></i></span></button>`;}).join("")||'<p class="hint">—</p>'}</div></div>
+        <div class="panel m-feed"><h3>Atividade do time</h3><div class="feed">${feedHtml(12)}</div></div>
+      </aside>
     </div></section>`;
   $$("[data-qa]",m).forEach(b=>b.onclick=async ev=>{ev.stopPropagation();const id=b.dataset.id;const t=S.tasks[id];if(!t)return;
     const a=b.dataset.qa;
-    if(a==="start")taskUpdate(id,{status:"doing"},"Bora! Tarefa em andamento.");
-    else if(a==="review")taskUpdate(id,{status:"review"},"Enviada para validação.");
-    else if(a==="approve")taskUpdate(id,{status:"done"},"Tarefa aprovada.");
+    if(a==="start")taskUpdate(id,{status:"doing"},"Em andamento.");
+    else if(a==="review")taskUpdate(id,{status:"review"},"Enviado para Em validação.");
+    else if(a==="approve")taskUpdate(id,{status:"done"},"Conferido e concluído.");
     else if(a==="return"){const ok=await taskUpdate(id,{status:"doing"},"Devolvida. Explique o que falta.");if(ok){openDrawer("task",id);setTimeout(()=>{const ta=$("#cm-in");if(ta){ta.placeholder="Explique o que falta ajustar…";ta.focus();}},350);}}
-    else if(a==="block"){openDrawer("task",id);setTimeout(()=>{const k=$('#drawer [data-kind="block"]');if(k)k.click();},350);}
   });
-  const lt=$("#log-text",m),ls=$("#log-task",m);
-  if(lt&&keep.text)lt.value=keep.text;if(ls&&keep.task&&S.tasks[keep.task])ls.value=keep.task;if(lt&&keep.focus){lt.focus();}
-  const send=async()=>{const txt=lt.value.trim();if(!txt){toast("Escreva o que você fez.");return;}const la=$("#log-add",m);la.disabled=true;
-    const ok=await commentAdd("task",ls.value,"progress",txt);la.disabled=false;if(ok){const t2=$("#log-text");if(t2)t2.value="";toast("Avanço registrado.");}};
-  const la=$("#log-add",m);if(la){la.onclick=send;lt.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();send();}};}
-  const no=$("#m-noowner",m);if(no)no.onclick=()=>{boardPerson="none";go("quadro");};
+  const nb=$("#m-new",m);if(nb)nb.onclick=()=>{go("quadro");setTimeout(()=>{const n=$("#nt-title");if(n)n.focus();},400);};
 }
 function updateBadge(){
   const b=$("#tab-badge");if(!b)return;if(Store.mode!=="db"){b.hidden=true;return;}
   const cd=curDay();let n=0;
   if(isAdmin())n=Object.values(S.tasks).filter(t=>t.status==="review").length;
-  else if(ACCESS==="membro")n=Object.values(S.tasks).filter(t=>t.assignee===myEmail()&&t.status!=="done"&&t.status!=="review"&&cd!=null&&t.due_day!=null&&t.due_day<cd).length;
+  else n=0;
   b.hidden=!n;b.textContent=n;b.title=isAdmin()?n+" aguardando validação":n+" atrasada(s)";
 }
 
@@ -1297,7 +1341,7 @@ async function refreshTeam(){
   tm.forEach(r=>{TEAM[String(r.email).toLowerCase()]={name:r.name,role:r.role,access:r.access||"membro",uid:r.uid||null,last_seen_at:r.last_seen_at||null};});schedule();
 }
 function personStats(email){
-  const cd=curDay();const ts=Object.values(S.tasks).filter(t=>t.assignee===email&&S.epics[t.epic_id]);
+  const cd=curDay();const ts=Object.values(S.tasks).filter(t=>tHas(t,email)&&S.epics[t.epic_id]);
   const by=k=>ts.filter(t=>t.status===k).length;
   const done=ts.filter(t=>t.status==="done"),open=ts.filter(t=>t.status!=="done");
   const late=open.filter(t=>t.status!=="review"&&cd!=null&&t.due_day!=null&&t.due_day<cd);
@@ -1317,7 +1361,7 @@ function renderTeam(m){
   if(isAdmin())loadAccounts();
   const people=Object.entries(TEAM).sort((a,b)=>({admin:0,membro:1,leitor:2}[a[1].access]-{admin:0,membro:1,leitor:2}[b[1].access])||a[1].name.localeCompare(b[1].name));
   const all=Object.values(S.tasks).filter(t=>S.epics[t.epic_id]);
-  const assigned=all.filter(t=>t.assignee).length,noOwner=all.filter(t=>!t.assignee&&t.status!=="done").length;
+  const assigned=all.filter(t=>tWho(t).length).length,noOwner=all.filter(t=>!tWho(t).length&&t.status!=="done").length;
   const cd=curDay();const lateAll=all.filter(t=>t.status!=="done"&&t.status!=="review"&&cd!=null&&t.due_day!=null&&t.due_day<cd).length;
   const doneAll=all.filter(t=>t.status==="done");const ontimeAll=doneAll.length?doneAll.filter(t=>{if(t.due_day==null||!startD()||!t.done_at)return true;const lim=dayDate(t.due_day);lim.setHours(23,59,59,999);return new Date(t.done_at)<=lim;}).length/doneAll.length:null;
   const seg=(n,tot,c,l)=>n?`<i style="flex:${n};background:${c}" title="${l}: ${n}"></i>`:"";
@@ -1392,7 +1436,7 @@ function drawPerson(d,id){
   const del=$("#p-del",d);if(del)del.onclick=()=>{$("#p-del-zone",d).innerHTML=`<div class="confirm"><span>Remover ${esc(p.name)} da equipe? A pessoa perde o acesso, a conta de login é apagada e as ${s.open} tarefa(s) aberta(s) ficam sem responsável. Os comentários continuam no histórico.</span><button class="btn btn-danger" id="p-del-y">Remover</button><button class="btn" id="p-del-n">Cancelar</button></div>`;
     $("#p-del-n",d).onclick=()=>renderDrawer();
     $("#p-del-y",d).onclick=async()=>{const {error}=await sb.rpc("team_remove",{p_email:id});if(error){toast(error.message||"Não consegui remover.");return;}
-      await invokeEquipe({action:"remove",email:id});Object.values(S.tasks).forEach(t=>{if(t.assignee===id&&t.status!=="done")t.assignee=null;});
+      await invokeEquipe({action:"remove",email:id});Object.values(S.tasks).forEach(t=>{if(tHas(t,id)&&t.status!=="done"){t.assignees=tWho(t).filter(x=>x!==id);t.assignee=t.assignees[0]||null;}});
       await refreshTeam();ACCOUNTS=null;loadAccounts(true);closeDrawer();toast(p.name+" saiu da equipe.");};};
 }
 
@@ -1662,7 +1706,13 @@ let ACCESS="admin";
 const isAdmin=()=>ACCESS==="admin";
 const myEmail=()=>String(me.id||"").toLowerCase();
 const canComment=()=>ACCESS==="admin"||ACCESS==="membro";
-const canEditTask=t=>!!t&&(isAdmin()||(ACCESS==="membro"&&t.assignee===myEmail()));
+const tWho=t=>Array.isArray(t&&t.assignees)&&t.assignees.length?t.assignees:(t&&t.assignee?[t.assignee]:[]);
+const tHas=(t,em)=>tWho(t).includes(String(em||"").toLowerCase());
+const isCreator=t=>!!t&&String(t.created_by||"").toLowerCase()===myEmail();
+const canEditTask=t=>!!t&&(isAdmin()||(ACCESS==="membro"&&(tHas(t,myEmail())||isCreator(t))));
+const canEditDetails=t=>!!t&&(isAdmin()||(ACCESS==="membro"&&isCreator(t)));
+function tWhoNames(t){const w=tWho(t);return w.length?w.map(e=>e===myEmail()?"Você":personName(e)).join(", "):"Sem responsável";}
+function tWhoAv(t,size){const w=tWho(t);return w.length?`<span class="av-stack">${w.slice(0,3).map(e=>avatar(e,size)).join("")}${w.length>3?`<span class="av-more">+${w.length-3}</span>`:""}</span>`:avatar(null,size);}
 const AV_COLORS=["#f6a524","#ee7a45","#5cc27e","#7fb0d1","#c99bf0","#e8c36a","#ef7b62","#6fd3c1"];
 function personName(email){if(!email)return"Sem responsável";const t=TEAM[String(email).toLowerCase()];return t&&t.name?t.name:String(email).split("@")[0];}
 function avatar(email,size){
@@ -1681,7 +1731,7 @@ function taskHealth(t){
   if(cd>t.due_day)return"late";if(t.due_day-cd<=3)return"risk";return"ontrack";
 }
 function commentsOf(type,id){return Object.values(S.comments).filter(c=>c.target_type===type&&c.target_id===id).sort((a,b)=>String(b.created_at).localeCompare(String(a.created_at)));}
-function friendlyErr(e){const m=(e&&e.message)||"";if(/administrador|validação|aprovada/i.test(m))return m;if(e&&(e.code==="42501"||/permission|policy/i.test(m)))return"Você não tem permissão para essa alteração.";return"Não consegui salvar agora. Tente de novo.";}
+function friendlyErr(e){const m=(e&&e.message)||"";if(/administrador|admin|validação|aprovada|criou/i.test(m))return m;if(e&&(e.code==="42501"||/permission|policy/i.test(m)))return"Você não tem permissão para essa alteração.";return"Não consegui salvar agora. Tente de novo.";}
 async function taskUpdate(id,patch,okMsg){
   const t=S.tasks[id];if(!t)return false;
   const before=clone(t);Object.assign(t,patch);if(patch.status)t.done_at=patch.status==="done"?new Date().toISOString():null;schedule();setSync("saving");
@@ -1689,10 +1739,9 @@ async function taskUpdate(id,patch,okMsg){
   if(error||!data||!data.length){S.tasks[id]=before;schedule();setSync("error");toast(error?friendlyErr(error):"Você não tem permissão para alterar esta tarefa.");return false;}
   S.tasks[id]=data[0];setSync("ok");schedule();if(okMsg)toast(okMsg);return true;
 }
-async function taskInsert(epicId,title,assignee){
-  const e=S.epics[epicId]||{};const n=tasksOf(epicId).length;
-  setSync("saving");
-  const {data,error}=await sb.from("tasks").insert({epic_id:epicId,title,assignee:assignee||null,due_day:e.dueDay||null,status:e.status==="backlog"?"backlog":"todo",priority:e.priority||null,sort:n+1}).select().single();
+async function taskInsert(epicId,title,assignees){
+  const n=tasksOf(epicId).length;setSync("saving");
+  const {data,error}=await sb.from("tasks").insert({epic_id:epicId,title,assignees:assignees||[],status:"todo",sort:n+1}).select().single();
   if(error){setSync("error");toast(friendlyErr(error));return null;}
   S.tasks[data.id]=data;setSync("ok");schedule();return data;
 }
@@ -1717,6 +1766,7 @@ function systemText(body){
   const parts=String(body).split(";").filter(Boolean).map(p=>{const [k,v]=p.split(":");const [a,b]=(v||"").split(">");
     if(k==="status")return `mudou o status de ${ST[a]||a} para ${ST[b]||b}`;
     if(k==="resp")return b?`atribuiu a ${personName(b)}`:"removeu o responsável";
+    if(k==="pessoas")return b?`definiu as pessoas: ${b.split(",").map(personName).join(", ")}`:"tirou todas as pessoas";
     if(k==="prazo")return `mudou o prazo para ${b?dayLabel(+b,true):"sem prazo"}`;
     return p;});
   return parts.join(" · ");
@@ -1724,7 +1774,7 @@ function systemText(body){
 function timelineHtml(type,id){
   const list=commentsOf(type,id);
   const composer=canComment()?`<div class="composer">
-      <div class="kind-seg" role="group" aria-label="Tipo de atualização">${["comment","progress","block"].map((k,i)=>`<button type="button" data-kind="${k}" aria-pressed="${i===0}">${KIND[k].i} ${KIND[k].l}</button>`).join("")}</div>
+      <div class="kind-seg" role="group" aria-label="Tipo de atualização">${["comment","progress"].map((k,i)=>`<button type="button" data-kind="${k}" aria-pressed="${i===0}">${KIND[k].i} ${KIND[k].l}</button>`).join("")}</div>
       <textarea class="inp" id="cm-in" rows="2" placeholder="Escreva um comentário…"></textarea>
       <div class="composer-foot"><span class="hint">Ctrl + Enter envia</span><button class="btn btn-lime" id="cm-add">Publicar</button></div></div>`:"";
   return composer+`<div class="timeline">${list.map(c=>{const sys=c.kind==="system";const mine=String(c.author).toLowerCase()===myEmail();
@@ -1750,79 +1800,57 @@ function teamOptions(sel){
 }
 function taskRowsHtml(epicId){
   const ts=tasksOf(epicId);
-  return `<div class="tasks">${ts.map(t=>{const h=taskHealth(t);const can=canEditTask(t);const done=t.status==="done";
-    const cbTitle=isAdmin()?(done?"Reabrir":"Aprovar como concluída"):can?"Enviar para validação":"Só o responsável ou um admin altera";
-    const nC=commentsOf("task",t.id).filter(c=>c.kind!=="system").length;
-    return `<div class="task trow ${done?"done":""}" data-open="task:${esc(t.id)}" tabindex="0" role="button">
-      <button class="cb" data-tq="${esc(t.id)}" aria-label="${esc(cbTitle)}" title="${esc(cbTitle)}" ${(isAdmin()||(can&&!["review","done"].includes(t.status)))?"":"disabled"}>✓</button>
-      <span class="tr-title">${esc(t.title)}</span>
-      <span class="tr-meta">${nC?`<span class="tr-c" title="${nC} comentário(s)">💬 ${nC}</span>`:""}<span class="chip h-${t.status==="review"?"risk":h}"><i></i>${ST[t.status]}</span>${avatar(t.assignee,22)}</span></div>`;}).join("")||'<p class="hint">Nenhuma tarefa nesta etapa.</p>'}</div>
-    ${isAdmin()?`<div class="add-row"><input class="inp" id="task-in" placeholder="Nova tarefa…"><select class="inp" id="task-who" aria-label="Responsável">${teamOptions("")}</select><button class="btn" id="task-add">Adicionar</button></div>`:""}`;
+  return `<div class="tasks">${ts.map(t=>{const st=simpleStatus(t.status);const nC=commentsOf("task",t.id).filter(c=>c.kind!=="system").length;
+    return `<div class="task trow ${st==="done"?"done":""}" data-open="task:${esc(t.id)}" tabindex="0" role="button"><span class="tdot" style="background:${STC[st]}"></span><span class="tr-title">${esc(t.title)}</span>
+      <span class="tr-meta">${nC?`<span class="tr-c">💬 ${nC}</span>`:""}<span class="st-tag" style="--sc:${STC[st]}">${ST[st]}</span>${tWhoAv(t,22)}</span></div>`;}).join("")||'<p class="hint">Nenhuma tarefa ainda. Crie a primeira abaixo ou no Quadro.</p>'}</div>
+    ${canComment()?`<div class="add-row"><input class="inp" id="task-in" placeholder="Nova tarefa para este objetivo…" autocomplete="off"><button class="btn" id="task-add">Criar</button></div>`:""}`;
 }
 function bindTaskRows(d,epicId){
-  $$("[data-tq]",d).forEach(b=>b.onclick=ev=>{ev.stopPropagation();const t=S.tasks[b.dataset.tq];if(!t)return;
-    if(isAdmin())taskUpdate(t.id,{status:t.status==="done"?"doing":"done"},t.status==="done"?"Tarefa reaberta.":"Tarefa aprovada como concluída.");
-    else taskUpdate(t.id,{status:"review"},"Enviada para validação.");});
   const ti=$("#task-in",d);if(!ti)return;
-  const add=async()=>{const v=ti.value.trim();if(!v)return;const who=$("#task-who",d).value;ti.disabled=true;const r=await taskInsert(epicId,v,who);ti.disabled=false;if(r){ti.value="";toast("Tarefa criada"+(who?" para "+personName(who):"")+".");renderDrawer();setTimeout(()=>{const n=$("#task-in");if(n)n.focus();},0);}};
+  const add=async()=>{const v=ti.value.trim();if(!v)return;ti.disabled=true;const r=await taskInsert(epicId,v,[myEmail()]);ti.disabled=false;
+    if(r){ti.value="";toast("Tarefa criada.");renderDrawer();setTimeout(()=>{const n=$("#task-in");if(n)n.focus();},0);}};
   $("#task-add",d).onclick=add;ti.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();add();}};
+}
+function epicOptions(sel,withAll){
+  return (withAll?`<option value="all" ${sel==="all"?"selected":""}>Todos os objetivos</option>`:"")+phasesSorted().map(p=>`<optgroup label="${esc((p.code||"")+" · "+p.name)}">${epicsOf(p.id).map(e=>`<option value="${esc(e.id)}" ${sel===e.id?"selected":""}>${esc(e.title)}</option>`).join("")}</optgroup>`).join("");
+}
+function peopleChips(sel,attr,disabled){
+  const people=Object.entries(TEAM).filter(([,p])=>p.access!=="leitor").sort((a,b)=>(a[0]===myEmail()?-1:b[0]===myEmail()?1:0)||a[1].name.localeCompare(b[1].name));
+  return `<div class="pchips" role="group" aria-label="Pessoas">${people.map(([em,p])=>`<button type="button" class="pchip" data-${attr}="${esc(em)}" aria-pressed="${sel.includes(em)}" ${disabled?"disabled":""}>${avatar(em,20)}<span>${esc(em===myEmail()?"Eu":p.name)}</span></button>`).join("")}</div>`;
 }
 function drawTask(d,id){
   const t=S.tasks[id];if(!t){closeDrawer();return;}
-  const e=S.epics[t.epic_id]||{};const ph=S.phases[e.phase];const h=taskHealth(t);const can=canEditTask(t);const cd=curDay();
-  const left=cd==null||t.due_day==null?null:t.due_day-cd;
-  const cl=Array.isArray(t.checklist)?t.checklist:[];const c=checkCount(t);
-  const canCheck=isAdmin()||(can&&t.status!=="done");
-  const cur=simpleStatus(t.status);
-  const stBtns=SIMPLE.map(k=>{let dis=!can;let tip="";
-    if(!isAdmin()&&k==="done"){dis=true;tip="Só um admin aprova";}
-    if(!isAdmin()&&t.status==="done"){dis=true;tip="Tarefa aprovada";}
-    return `<button data-tst="${k}" aria-pressed="${cur===k}" ${dis?"disabled":""} title="${esc(tip)}">${ST[k]}</button>`;}).join("");
+  const e=S.epics[t.epic_id]||{};const ph=S.phases[e.phase];const can=canEditTask(t);const canDet=canEditDetails(t);
+  const cur=simpleStatus(t.status);const people=tWho(t);
+  const steps=isAdmin()?[["todo","A fazer"],["doing","Em andamento"],["review","Em validação"],["done","Concluído"]]:[["todo","A fazer"],["doing","Em andamento"],["review","Concluí ✓"]];
   d.innerHTML=`<div class="d-head">
-    <div class="d-head-row"><div class="d-crumbs">${ph?`<span>${esc((ph.code||"")+" · "+ph.name)}</span><span>›</span>`:""}<button data-open="epic:${esc(t.epic_id)}">Ver etapa</button></div><button class="x" id="x" aria-label="Fechar">×</button></div>
-    ${isAdmin()?`<input class="d-title" id="t-title" value="${esc(t.title)}" aria-label="Nome da tarefa">`:`<h2 class="d-title" style="border:0">${esc(t.title)}</h2>`}
-    <div class="epic-row">${avatar(t.assignee,26)}<b>${esc(personName(t.assignee))}</b>
-      <span class="hint mono">${t.due_day!=null?"prazo "+dayLabel(t.due_day,true):"sem prazo"}${left==null||t.status==="done"?"":left<0?` · <span class="late">${-left} dia(s) de atraso</span>`:left===0?" · vence hoje":` · faltam ${left} dia(s)`}</span></div>
+    <div class="d-head-row"><div class="d-crumbs">${ph?`<span>${esc((ph.code||"")+" · "+ph.name)}</span><span>›</span>`:""}<button data-open="epic:${esc(t.epic_id)}">🎯 ${esc(e.title||"Objetivo")}</button></div><button class="x" id="x" aria-label="Fechar">×</button></div>
+    ${canDet?`<input class="d-title" id="t-title" value="${esc(t.title)}" aria-label="Nome da tarefa">`:`<h2 class="d-title" style="border:0">${esc(t.title)}</h2>`}
+    <div class="epic-row">${tWhoAv(t,26)}<b>${esc(tWhoNames(t))}</b><span class="st-tag" style="--sc:${STC[cur]}">${ST[cur]}</span></div>
   </div>
   <div class="d-body">
-    ${t.status==="review"&&isAdmin()?`<div class="review-bar"><span>⏳ <b>${esc(personName(t.assignee))}</b> terminou e pediu validação.</span><button class="btn btn-lime" id="t-approve">Aprovar</button><button class="btn" id="t-return">Devolver</button></div>`:""}
-    ${t.status==="blocked"?`<div class="review-bar block-bar"><span>⛔ Tarefa bloqueada. Veja o motivo nas atualizações.</span>${can?'<button class="btn" id="t-unblock">Desbloquear</button>':""}</div>`:""}
-    <div class="d-sec"><h4>Status</h4><div class="seg" role="group" aria-label="Status da tarefa">${stBtns}</div>
-      ${!can&&!isAdmin()?`<p class="hint">🔒 Só ${esc(personName(t.assignee))} ou um admin mudam esta tarefa. Você pode comentar.</p>`:""}</div>
-    <div class="d-sec"><h4>Checklist <span class="mono">${t.status==="done"?c.n:c.d}/${c.n}</span></h4>
-      <div class="tasks">${cl.map(i=>`<div class="task ${i.done||t.status==="done"?"done":""}"><button class="cb" data-ck="${esc(i.id)}" aria-label="${i.done?"Desmarcar":"Marcar"} item" ${canCheck?"":"disabled"}>✓</button><span class="tr-title">${esc(i.text)}</span>${isAdmin()?`<button class="rm" data-ckrm="${esc(i.id)}" aria-label="Remover item">×</button>`:""}</div>`).join("")||'<p class="hint">Sem itens.</p>'}</div>
-      ${isAdmin()?`<div class="add-row"><input class="inp" id="ck-in" placeholder="Novo item do checklist…"><button class="btn" id="ck-add">Adicionar</button></div>`:""}
-      ${can&&!isAdmin()&&c.n&&c.d===c.n&&t.status!=="review"&&t.status!=="done"?`<button class="btn btn-lime" id="t-send" style="justify-self:start">Tudo feito! Enviar para validação</button>`:""}</div>
-    ${isAdmin()?`<div class="d-sec"><h4>Responsável e prazo</h4><div class="fields">
-      <label class="field">Responsável<select id="t-who">${teamOptions(t.assignee||"")}</select></label>
-      ${dayInput("t-due",t.due_day||e.dueDay||1,"Prazo")}
-    </div></div>`:""}
-    <div class="d-sec"><h4>Atualizações</h4>${timelineHtml("task",id)}</div>
-    ${isAdmin()?`<div class="d-sec" id="tdel-zone"><button class="btn btn-quiet" id="t-del" style="color:var(--bad);justify-self:start">Excluir esta tarefa</button></div>`:""}
+    ${cur==="review"&&isAdmin()?`<div class="review-bar"><span>⏳ <b>${esc(tWhoNames(t))}</b> concluiu. Confira e dê o ok.</span><button class="btn btn-lime" id="t-approve">✓ Conferido</button><button class="btn" id="t-return">↩ Devolver</button></div>`:""}
+    ${cur==="review"&&!isAdmin()?`<p class="hint lock">⏳ Em validação: o admin vai conferir e marcar como concluído.</p>`:""}
+    ${cur==="done"?`<p class="hint lock">✅ Concluído e conferido.</p>`:""}
+    ${cur!=="done"||isAdmin()?`<div class="d-sec"><h4>Andamento</h4><div class="seg" role="group" aria-label="Andamento da tarefa">${steps.map(([k,l])=>`<button data-tst="${k}" aria-pressed="${cur===k}" ${can&&!(cur==="done"&&!isAdmin())?"":"disabled"}>${l}</button>`).join("")}</div>
+      ${!can?`<p class="hint">🔒 Só as pessoas da tarefa ou um admin mudam o andamento. Você pode comentar.</p>`:!isAdmin()?`<p class="hint">Terminou? Clique em <b>Concluí ✓</b>: a tarefa vai para Em validação e o admin confere.</p>`:""}</div>`:""}
+    <div class="d-sec"><h4>Quem está fazendo</h4>${peopleChips(people,"tp",!canDet)}${!canDet?'<p class="hint">Só quem criou a tarefa ou um admin muda as pessoas.</p>':""}</div>
+    ${canDet?`<div class="d-sec"><h4>Objetivo</h4><select class="inp" id="t-epic">${epicOptions(t.epic_id,false)}</select></div>`:""}
+    <div class="d-sec"><h4>Comentários</h4>${timelineHtml("task",id)}</div>
+    ${isAdmin()||(isCreator(t)&&cur!=="done")?`<div class="d-sec" id="tdel-zone"><button class="btn btn-quiet" id="t-del" style="color:var(--bad);justify-self:start">Apagar esta tarefa</button></div>`:""}
   </div>`;
   $("#x",d).onclick=closeDrawer;
-  $$("[data-tst]",d).forEach(b=>b.onclick=()=>{if(b.dataset.tst===cur)return;taskUpdate(id,{status:b.dataset.tst},`Status: ${ST[b.dataset.tst]}.`);});
-  $$("[data-ck]",d).forEach(b=>b.onclick=async()=>{
-    const list=clone(cl);const it=list.find(x=>x.id===b.dataset.ck);if(!it)return;it.done=!it.done;it.doneAt=it.done?new Date().toISOString():null;
-    const patch={checklist:list};if(it.done&&["todo","backlog"].includes(t.status))patch.status="doing";
-    const ok=await taskUpdate(id,patch);if(ok){const all=list.length&&list.every(x=>x.done);if(all&&!isAdmin())toast("Tudo marcado! Envie para validação.");}
-    renderDrawer();const pb=$(`[data-ck="${CSS.escape(b.dataset.ck)}"]`,$("#drawer"));if(pb)pb.classList.add("pop");});
-  $$("[data-ckrm]",d).forEach(b=>b.onclick=()=>taskUpdate(id,{checklist:cl.filter(x=>x.id!==b.dataset.ckrm)}).then(()=>renderDrawer()));
-  const ci=$("#ck-in",d);if(ci){const add=async()=>{const v=ci.value.trim();if(!v)return;const list=clone(cl).concat({id:Date.now().toString(36),text:v,done:false});
-    if(await taskUpdate(id,{checklist:list})){renderDrawer();setTimeout(()=>{const n=$("#ck-in");if(n)n.focus();},0);}};
-    $("#ck-add",d).onclick=add;ci.onkeydown=ev=>{if(ev.key==="Enter"){ev.preventDefault();add();}};}
-  const sd=$("#t-send",d);if(sd)sd.onclick=()=>taskUpdate(id,{status:"review"},"Enviada para validação.").then(()=>renderDrawer());
-  const ub=$("#t-unblock",d);if(ub)ub.onclick=()=>taskUpdate(id,{status:"doing"},"Tarefa desbloqueada.").then(()=>renderDrawer());
-  const ap=$("#t-approve",d);if(ap)ap.onclick=()=>taskUpdate(id,{status:"done"},"Tarefa aprovada.");
-  const rt=$("#t-return",d);if(rt)rt.onclick=async()=>{const ok=await taskUpdate(id,{status:"doing"},"Devolvida para Fazendo.");if(ok){renderDrawer();const ta=$("#cm-in");if(ta){ta.placeholder="Explique o que falta ajustar…";ta.focus();}}};
-  if(isAdmin()){
-    const tt=$("#t-title",d);tt.onchange=()=>{const v=tt.value.trim();if(v)taskUpdate(id,{title:v});};
-    $("#t-who",d).onchange=ev=>taskUpdate(id,{assignee:ev.target.value||null},ev.target.value?"Atribuída a "+personName(ev.target.value)+".":"Responsável removido.");
-    const du=$("#t-due",d);du.onchange=()=>{const v=readDay(du);if(v!=null)taskUpdate(id,{due_day:Math.max(1,v)},"Prazo atualizado.");};
-    $("#t-del",d).onclick=()=>{$("#tdel-zone",d).innerHTML=`<div class="confirm"><span>Excluir esta tarefa e o histórico dela? Não dá para desfazer.</span><button class="btn btn-danger" id="td-y">Excluir</button><button class="btn" id="td-n">Cancelar</button></div>`;
-      $("#td-n",d).onclick=()=>renderDrawer();$("#td-y",d).onclick=async()=>{const eid=t.epic_id;if(await taskDelete(id)){toast("Tarefa excluída.");openDrawer("epic",eid);}};};
-  }
-  bindTimeline(d,"task",id,can?()=>taskUpdate(id,{status:"blocked"}):null);
+  $$("[data-tst]",d).forEach(b=>b.onclick=()=>{let to=b.dataset.tst;if(to===cur)return;if(to==="done"&&!isAdmin())to="review";
+    taskUpdate(id,{status:to},to==="review"&&!isAdmin()?"Enviado para Em validação.":`${ST[to]}.`).then(()=>renderDrawer());});
+  $$("[data-tp]",d).forEach(b=>b.onclick=()=>{const em=b.dataset.tp;const list=people.includes(em)?people.filter(x=>x!==em):people.concat(em);
+    taskUpdate(id,{assignees:list}).then(()=>renderDrawer());});
+  const te=$("#t-epic",d);if(te)te.onchange=()=>taskUpdate(id,{epic_id:te.value},"Objetivo atualizado.").then(()=>renderDrawer());
+  const tt=$("#t-title",d);if(tt)tt.onchange=()=>{const v=tt.value.trim();if(v)taskUpdate(id,{title:v});};
+  const ap=$("#t-approve",d);if(ap)ap.onclick=()=>taskUpdate(id,{status:"done"},"Conferido e concluído.").then(()=>renderDrawer());
+  const rt=$("#t-return",d);if(rt)rt.onclick=async()=>{const ok=await taskUpdate(id,{status:"doing"},"Devolvida para Em andamento.");if(ok){renderDrawer();const ta=$("#cm-in");if(ta){ta.placeholder="Explique o que falta ajustar…";ta.focus();}}};
+  const del=$("#t-del",d);if(del)del.onclick=()=>{$("#tdel-zone",d).innerHTML=`<div class="confirm"><span>Apagar esta tarefa e os comentários dela? Não dá para desfazer.</span><button class="btn btn-danger" id="td-y">Apagar</button><button class="btn" id="td-n">Cancelar</button></div>`;
+    $("#td-n",d).onclick=()=>renderDrawer();$("#td-y",d).onclick=async()=>{if(await taskDelete(id)){toast("Tarefa apagada.");closeDrawer();}};};
+  bindTimeline(d,"task",id,null);
 }
 
 
