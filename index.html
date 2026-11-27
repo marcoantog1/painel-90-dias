@@ -310,6 +310,51 @@ main{padding-block:26px 80px}
 .review-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:var(--warn-soft);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent);border-radius:12px;padding:10px 12px}
 .review-bar span{flex:1;min-width:180px}
 .lock{background:var(--surface-2);border-radius:10px;padding:8px 10px;margin:0}
+/* minha área */
+.tab-badge{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;margin-left:6px;border-radius:999px;background:var(--bad);color:#fff;font-size:11px;font-weight:700;vertical-align:1px}
+.m-dates{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.m-date{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:grid;gap:2px;box-shadow:var(--shadow)}
+.m-date b{font-family:var(--f-display);font-size:calc(18px * var(--fs));font-weight:600}
+.m-date small{color:var(--muted);font-size:calc(12.5px * var(--fs))}
+.m-date.accent{border-color:rgba(246,165,36,.45);background:linear-gradient(180deg,rgba(246,165,36,.08),transparent),var(--surface)}
+.late{color:var(--bad)}
+.m-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,380px);gap:16px;align-items:start}
+.m-col{display:grid;gap:16px;min-width:0}
+.m-col .panel h3,.m-feed h3{display:flex;align-items:center;gap:8px}
+.m-group{display:grid;gap:6px;padding:6px 0 12px;border-bottom:1px solid var(--line)}
+.m-group:last-child{border-bottom:0}
+.m-group h3{font-size:calc(14.5px * var(--fs));margin:4px 0}
+.m-group.g-late h3{color:var(--bad)}
+.m-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;align-items:center;padding:10px 12px 10px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2);cursor:pointer;position:relative;transition:border-color .2s,transform .2s}
+.m-row::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--hc,var(--line))}
+.m-row:hover{border-color:var(--sage);transform:translateX(2px)}
+.m-main{display:grid;gap:2px;min-width:0}
+.m-title{font-size:calc(14px * var(--fs));font-weight:500}
+.m-sub{font-size:calc(12px * var(--fs));color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-side{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.m-due{font-family:var(--f-mono);font-size:calc(12px * var(--fs));color:var(--muted)}
+.m-due.late{color:var(--bad)}
+.m-acts{grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap}
+.qa{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:5px 12px;font-size:calc(12.5px * var(--fs));font-weight:600;transition:all .2s}
+.qa:hover{border-color:var(--accent)}
+.qa-ok{background:var(--brand-grad);color:var(--lime-ink);border-color:transparent}
+.qa-bad{color:var(--bad)}
+.qa-wait{font-size:calc(12px * var(--fs));color:var(--warn)}
+.m-log{display:grid;gap:8px}
+.m-log-row select{width:100%}
+.m-admin{border-color:rgba(246,165,36,.35)}
+.m-feed{position:sticky;top:calc(env(safe-area-inset-top,0px) + 70px)}
+.feed{display:grid;gap:12px;max-height:calc(100vh - 200px);overflow-y:auto;padding-right:4px;scrollbar-width:thin}
+.f-item{display:grid;grid-template-columns:28px 1fr;gap:10px;font-size:calc(13px * var(--fs))}
+.f-body{display:grid;gap:3px;min-width:0}
+.f-body p{margin:0;color:var(--ink);background:var(--surface-2);border-radius:10px;padding:6px 10px;white-space:pre-wrap;overflow-wrap:anywhere}
+.f-item.k-block .f-body p{background:var(--bad-soft)}
+.f-item.k-progress .f-body p{background:var(--ok-soft)}
+.f-item.k-system{color:var(--muted)}
+.f-time{font-size:calc(11.5px * var(--fs));color:var(--muted)}
+.f-link{border:0;background:none;padding:0;color:var(--lime);font:inherit;font-weight:600;text-align:left;cursor:pointer;text-decoration:underline;text-decoration-color:transparent;transition:text-decoration-color .2s}
+.f-link:hover{text-decoration-color:currentColor}
+@media (max-width:1000px){.m-grid{grid-template-columns:1fr}.m-feed{position:static}.m-dates{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:start}
 .col{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:12px;min-height:200px;transition:background .25s,border-color .25s}
 .col.drag-over{background:color-mix(in srgb,var(--lime) 20%,var(--surface-2));border-color:var(--accent)}
@@ -561,6 +606,7 @@ main{position:relative;z-index:1}
     <div class="brand"><div class="brand-mark" aria-hidden="true">↗</div><div>COMERCIAL<small>Plano 90 dias</small></div></div>
     <nav class="tabs" id="tabs" role="tablist" aria-label="Vistas do painel">
       <span class="tab-pill" id="tab-pill" aria-hidden="true"></span>
+      <button class="tab" role="tab" data-v="minha">Minha área<span class="tab-badge" id="tab-badge" hidden></span></button>
       <button class="tab" role="tab" data-v="mapa">Mapa</button>
       <button class="tab" role="tab" data-v="linha">Linha do tempo</button>
       <button class="tab" role="tab" data-v="quadro">Quadro</button>
@@ -667,8 +713,9 @@ const LS_KEY="plano90:v1";
 
 /* ---------------- estado ---------------- */
 const S={config:null,phases:{},epics:{},sprints:{},loaded:{config:false,phases:false,epics:false,sprints:false},confirmed:false,timedOut:false};
-let view=(location.hash||"").slice(1)||"mapa";
-if(!["mapa","linha","quadro","metricas","rituais"].includes(view)) view="mapa";
+const VIEWS=["minha","mapa","linha","quadro","metricas","rituais"];
+let view=(location.hash||"").slice(1)||(window.supabase?"minha":"mapa");
+if(!VIEWS.includes(view)||(view==="minha"&&!window.supabase)) view="mapa";
 let drawerState=null; // {type,id}
 let canWrite=true, me={id:"local"}, userApi=null, names={};
 
@@ -859,7 +906,7 @@ function currentPhase(){const cd=curDay();if(cd==null)return null;return phasesS
 let raf=0;function schedule(){if(raf)return;const run=()=>{if(!raf)return;cancelAnimationFrame(raf);raf=0;renderAll();};raf=requestAnimationFrame(run);setTimeout(run,150);}
 function renderAll(){
   if(typeof attachTasks==="function"&&Store.mode==="db")attachTasks();
-  renderClock(false);renderStats();renderView();
+  renderClock(false);renderStats();renderView();if(typeof updateBadge==="function")updateBadge();
   if(drawerState){const a=document.activeElement;if(!a||!$("#drawer").contains(a)||a.tagName==="BUTTON")renderDrawer();}
 }
 
@@ -923,7 +970,7 @@ function renderView(){
       </div>`;
     const b=$("#imp");if(b)b.onclick=importTemplate;return;
   }
-  const r={mapa:renderMap,linha:renderTimeline,quadro:renderBoard,metricas:renderMetrics,rituais:renderRituals}[view];
+  const r={minha:renderMine,mapa:renderMap,linha:renderTimeline,quadro:renderBoard,metricas:renderMetrics,rituais:renderRituals}[view];
   const changed=m.dataset.v!==view;m.dataset.v=view;
   r(m);
   if(changed&&m.firstElementChild){
@@ -1052,6 +1099,99 @@ function renderBoard(m){
     col.addEventListener("drop",ev=>{ev.preventDefault();col.classList.remove("drag-over");const id=ev.dataTransfer.getData("text/plain");
       if(id&&S.epics[id]&&(S.epics[id].status||"todo")!==col.dataset.col)setStatus(id,col.dataset.col);});
   });
+}
+
+/* ---- minha área ---- */
+function ago(ts){const s=(Date.now()-new Date(ts))/1000;if(s<60)return"agora";if(s<3600)return"há "+Math.floor(s/60)+" min";if(s<86400)return"há "+Math.floor(s/3600)+" h";const d=Math.floor(s/86400);return d===1?"ontem":"há "+d+" dias";}
+function dueText(t){const cd=curDay();if(t.due_day==null)return"sem prazo";if(cd==null||t.status==="done")return dayLabel(t.due_day);const l=t.due_day-cd;return l<0?Math.abs(l)+"d de atraso":l===0?"vence hoje":l===1?"vence amanhã":"em "+l+" dias";}
+function mineRow(t,mode){
+  const e=S.epics[t.epic_id]||{};const ph=S.phases[e.phase];const h=taskHealth(t);const can=canEditTask(t);
+  const nC=commentsOf("task",t.id).filter(c=>c.kind!=="system").length;
+  let acts="";
+  if(mode==="queue"){acts=isAdmin()?`<button class="qa qa-ok" data-qa="approve" data-id="${esc(t.id)}">Aprovar</button><button class="qa" data-qa="return" data-id="${esc(t.id)}">Devolver</button>`:"";}
+  else if(can){
+    if(["backlog","todo"].includes(t.status))acts=`<button class="qa qa-ok" data-qa="start" data-id="${esc(t.id)}">▶ Comecei</button>`;
+    else if(t.status==="doing")acts=`<button class="qa qa-ok" data-qa="review" data-id="${esc(t.id)}">Enviar p/ validação</button><button class="qa qa-bad" data-qa="block" data-id="${esc(t.id)}" title="Estou bloqueado">⛔</button>`;
+    else if(t.status==="blocked")acts=`<button class="qa" data-qa="start" data-id="${esc(t.id)}">Retomar</button>`;
+    else if(t.status==="review")acts=`<span class="qa-wait">⏳ aguardando aprovação</span>`;
+  }
+  return `<div class="m-row" data-open="task:${esc(t.id)}" tabindex="0" role="button" style="--hc:${HCOL[h]}">
+    <div class="m-main"><span class="m-title">${esc(t.title)}</span>
+      <span class="m-sub">${ph?esc(ph.code||"")+" · ":""}${esc(e.title||"")}${mode==="queue"||mode==="all"?` · ${esc(personName(t.assignee))}`:""}${nC?` · 💬 ${nC}`:""}</span></div>
+    <div class="m-side"><span class="m-due ${h==="late"?"late":""}">${esc(dueText(t))}</span><span class="chip h-${t.status==="review"?"risk":h}"><i></i>${ST[t.status]}</span>${mode==="queue"||mode==="all"?avatar(t.assignee,24):""}</div>
+    ${acts?`<div class="m-acts">${acts}</div>`:""}
+  </div>`;
+}
+function feedHtml(limit){
+  const items=Object.values(S.comments).sort((a,b)=>String(b.created_at).localeCompare(String(a.created_at))).slice(0,limit);
+  return items.map(c=>{const isT=c.target_type==="task";const tgt=isT?S.tasks[c.target_id]:S.epics[c.target_id];if(!tgt)return"";
+    const title=isT?tgt.title:tgt.title;const who=String(c.author).toLowerCase()===myEmail()?"Você":personName(c.author);
+    const verb=c.kind==="system"?systemText(c.body):c.kind==="progress"?"registrou um avanço":c.kind==="block"?"sinalizou um bloqueio":"comentou";
+    return `<div class="f-item k-${esc(c.kind)}">${avatar(c.author,28)}<div class="f-body">
+      <div><b>${esc(who)}</b> ${esc(verb)} em <button class="f-link" data-open="${isT?"task":"epic"}:${esc(c.target_id)}">${esc(title.length>60?title.slice(0,60)+"…":title)}</button></div>
+      ${c.kind!=="system"?`<p>${esc(c.body.length>180?c.body.slice(0,180)+"…":c.body)}</p>`:""}
+      <span class="f-time">${KIND[c.kind]?KIND[c.kind].i:""} ${esc(ago(c.created_at))}</span></div></div>`;}).join("")||'<p class="hint">Nenhuma atividade ainda. Comentários, avanços e mudanças de status aparecem aqui.</p>';
+}
+function renderMine(m){
+  if(Store.mode!=="db"){renderMap(m);return;}
+  const keep={text:$("#log-text",m)?$("#log-text",m).value:"",task:$("#log-task",m)?$("#log-task",m).value:"",focus:document.activeElement&&document.activeElement.id==="log-text",scroll:$(".feed",m)?$(".feed",m).scrollTop:0};
+  const cd=curDay(),T=TOTAL(),meE=myEmail(),ph=currentPhase(),pMe=TEAM[meE]||{};
+  const mine=Object.values(S.tasks).filter(t=>t.assignee===meE&&S.epics[t.epic_id]);
+  const open=mine.filter(t=>t.status!=="done");
+  const byDue=(a,b)=>(a.due_day??999)-(b.due_day??999);
+  const late=open.filter(t=>t.status!=="review"&&cd!=null&&t.due_day!=null&&t.due_day<cd).sort(byDue);
+  const week=open.filter(t=>t.status!=="review"&&!late.includes(t)&&cd!=null&&t.due_day!=null&&t.due_day-cd<=7).sort(byDue);
+  const review=open.filter(t=>t.status==="review").sort(byDue);
+  const next=open.filter(t=>!late.includes(t)&&!week.includes(t)&&t.status!=="review").sort(byDue);
+  const doneMine=mine.filter(t=>t.status==="done");
+  const queue=Object.values(S.tasks).filter(t=>t.status==="review"&&S.epics[t.epic_id]).sort(byDue);
+  const blocks=Object.values(S.tasks).filter(t=>t.status==="blocked"&&S.epics[t.epic_id]).sort(byDue);
+  const noOwner=Object.values(S.tasks).filter(t=>!t.assignee&&t.status!=="done"&&S.epics[t.epic_id]).length;
+  const spr=cd!=null&&cd>=1&&cd<=T?sprintRange(sprintOf(cd)):null;
+  const left=n=>n==null?"":n<0?`encerrado`:n===0?"termina hoje":`faltam ${n} dia${n===1?"":"s"}`;
+  const group=(title,list,cls,empty)=>`<div class="m-group ${cls||""}"><h3>${title} <span class="kcount">${list.length}</span></h3>${list.map(t=>mineRow(t,"mine")).join("")||`<p class="hint">${empty}</p>`}</div>`;
+  const hello=new Date().getHours()<12?"Bom dia":new Date().getHours()<18?"Boa tarde":"Boa noite";
+  m.innerHTML=`<section class="view"><div class="view-head"><div><h2>${hello}, ${esc(pMe.name||"")}</h2><p>${ACCESS==="leitor"?"Você tem acesso de leitura: acompanhe o andamento, a fila de validação e a atividade do time.":"Suas tarefas, os prazos que importam e o que o time está fazendo."}</p></div></div>
+    <div class="m-dates">
+      <div class="m-date"><span class="eyebrow">Fase atual</span><b>${ph?esc((ph.code||"")+" · "+ph.name):cd==null?"Início não definido":"—"}</b><small>${ph?`até ${dayLabel(ph.endDay,true)} · ${left(ph.endDay-cd)}`:""}</small></div>
+      <div class="m-date"><span class="eyebrow">Sprint</span><b>${spr?"Sprint "+sprintOf(cd):"—"}</b><small>${spr?`até ${dayLabel(spr[1],true)} · ${left(spr[1]-cd)}`:""}</small></div>
+      <div class="m-date"><span class="eyebrow">Fim do projeto</span><b>${startD()?dayLabel(T,true):"—"}</b><small>${cd!=null?left(T-cd):"defina o dia X"}</small></div>
+      ${ACCESS!=="leitor"?`<div class="m-date accent"><span class="eyebrow">Minhas tarefas</span><b>${open.length} aberta${open.length===1?"":"s"}</b><small>${late.length?`<span class="late">${late.length} atrasada${late.length>1?"s":""}</span> · `:""}${doneMine.length} concluída${doneMine.length===1?"":"s"}</small></div>`:""}
+    </div>
+    <div class="m-grid">
+      <div class="m-col">
+        ${isAdmin()?`<div class="panel m-admin"><h3>Fila de validação <span class="kcount ${queue.length?"over":""}">${queue.length}</span></h3><p class="sub">Tarefas que o time terminou e esperam a sua aprovação.</p>${queue.map(t=>mineRow(t,"queue")).join("")||'<p class="hint">Nada esperando aprovação.</p>'}
+          ${blocks.length?`<h3 style="margin-top:14px">Bloqueios <span class="kcount over">${blocks.length}</span></h3>${blocks.map(t=>mineRow(t,"all")).join("")}`:""}
+          ${noOwner?`<p class="hint" style="margin-top:10px">📌 ${noOwner} tarefa${noOwner>1?"s":""} sem responsável. <button class="f-link" id="m-noowner">Ver no quadro</button></p>`:""}</div>`:""}
+        ${ACCESS!=="leitor"?`
+        ${open.length?`<div class="panel m-log"><h3>O que você fez hoje?</h3><div class="m-log-row"><select class="inp" id="log-task" aria-label="Tarefa">${open.map(t=>`<option value="${esc(t.id)}">${esc(t.title.length>70?t.title.slice(0,70)+"…":t.title)}</option>`).join("")}</select></div>
+          <textarea class="inp" id="log-text" rows="2" placeholder="Ex.: liguei para 12 leads sem retorno e reativei 4."></textarea><div class="composer-foot"><span class="hint">Fica registrado na tarefa como ✅ avanço</span><button class="btn btn-lime" id="log-add">Registrar</button></div></div>`:""}
+        <div class="panel">${group("Atrasadas",late,"g-late","Nada atrasado. Ótimo!")}${group("Próximos 7 dias",week,"","Nada vencendo nesta semana.")}${group("Aguardando aprovação",review,"","Nada aguardando.")}${group(cd==null?"Minhas tarefas":"Mais adiante",next,"",open.length?"—":"Nenhuma tarefa atribuída a você ainda.")}</div>`:""}
+        ${!isAdmin()&&ACCESS==="leitor"?`<div class="panel"><h3>Em validação <span class="kcount">${queue.length}</span></h3>${queue.map(t=>mineRow(t,"all")).join("")||'<p class="hint">Nada aguardando.</p>'}</div>`:""}
+      </div>
+      <aside class="panel m-feed"><h3>Atividade do time</h3><p class="sub">Comentários, avanços, bloqueios e mudanças de status.</p><div class="feed">${feedHtml(30)}</div></aside>
+    </div></section>`;
+  $$("[data-qa]",m).forEach(b=>b.onclick=async ev=>{ev.stopPropagation();const id=b.dataset.id;const t=S.tasks[id];if(!t)return;
+    const a=b.dataset.qa;
+    if(a==="start")taskUpdate(id,{status:"doing"},"Bora! Tarefa em andamento.");
+    else if(a==="review")taskUpdate(id,{status:"review"},"Enviada para validação.");
+    else if(a==="approve")taskUpdate(id,{status:"done"},"Tarefa aprovada.");
+    else if(a==="return"){const ok=await taskUpdate(id,{status:"doing"},"Devolvida para Em andamento. Explique o que falta.");if(ok){openDrawer("task",id);setTimeout(()=>{const ta=$("#cm-in");if(ta){ta.placeholder="Explique o que falta ajustar…";ta.focus();}},350);}}
+    else if(a==="block"){openDrawer("task",id);setTimeout(()=>{const k=$('#drawer [data-kind="block"]');if(k)k.click();},350);}
+  });
+  const lt=$("#log-text",m),ls=$("#log-task",m);
+  if(lt&&keep.text){lt.value=keep.text;}if(ls&&keep.task&&S.tasks[keep.task])ls.value=keep.task;if(lt&&keep.focus){lt.focus();lt.setSelectionRange(lt.value.length,lt.value.length);}
+  if($(".feed",m))$(".feed",m).scrollTop=keep.scroll;
+  const la=$("#log-add",m);if(la)la.onclick=async()=>{const txt=$("#log-text",m).value.trim();if(!txt){toast("Escreva o que você fez.");return;}la.disabled=true;
+    const tid=$("#log-task",m).value;const ok=await commentAdd("task",tid,"progress",txt);la.disabled=false;if(ok){const t2=$("#log-text");if(t2)t2.value="";toast("Avanço registrado.");}};
+  const no=$("#m-noowner",m);if(no)no.onclick=()=>{boardMode="tasks";boardPerson="none";go("quadro");};
+}
+function updateBadge(){
+  const b=$("#tab-badge");if(!b)return;if(Store.mode!=="db"){b.hidden=true;return;}
+  const cd=curDay();let n=0;
+  if(isAdmin())n=Object.values(S.tasks).filter(t=>t.status==="review").length;
+  else if(ACCESS==="membro")n=Object.values(S.tasks).filter(t=>t.assignee===myEmail()&&t.status!=="done"&&t.status!=="review"&&cd!=null&&t.due_day!=null&&t.due_day<cd).length;
+  b.hidden=!n;b.textContent=n;b.title=isAdmin()?n+" aguardando validação":n+" atrasada(s)";
 }
 
 /* ---- métricas ---- */
@@ -1269,7 +1409,7 @@ function addEpic(pid){
 /* ---------------- eventos globais ---------------- */
 function bindGlobal(){
   $("#tabs").addEventListener("click",e=>{const b=e.target.closest(".tab");if(!b)return;go(b.dataset.v);});
-  window.addEventListener("hashchange",()=>{const v=location.hash.slice(1);if(v&&v!==view&&["mapa","linha","quadro","metricas","rituais"].includes(v)){view=v;schedule();}});
+  window.addEventListener("hashchange",()=>{const v=location.hash.slice(1);if(v&&v!==view&&VIEWS.includes(v)){view=v;schedule();}});
   document.addEventListener("click",e=>{
     const a=e.target.closest("[data-add]");if(a){e.preventDefault();addEpic(a.dataset.add);return;}
     const o=e.target.closest("[data-open]");if(o){if(o.classList.contains("card")&&o.classList.contains("dragging"))return;const [t,id]=o.dataset.open.split(":");openDrawer(t,id);return;}
