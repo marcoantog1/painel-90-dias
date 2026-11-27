@@ -354,6 +354,36 @@ main{padding-block:26px 80px}
 .f-time{font-size:calc(11.5px * var(--fs));color:var(--muted)}
 .f-link{border:0;background:none;padding:0;color:var(--lime);font:inherit;font-weight:600;text-align:left;cursor:pointer;text-decoration:underline;text-decoration-color:transparent;transition:text-decoration-color .2s}
 .f-link:hover{text-decoration-color:currentColor}
+/* equipe */
+.p-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.p-card{display:grid;gap:12px;align-content:start}
+.p-head{display:flex;align-items:center;gap:12px}
+.p-id{display:grid;gap:2px;min-width:0;flex:1}
+.p-id b{font-family:var(--f-display);font-size:calc(17px * var(--fs));font-weight:600}
+.p-id span{font-size:calc(12.5px * var(--fs));color:var(--muted)}
+.p-edit{flex:none}
+.acc-role{font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:calc(10.5px * var(--fs))}
+.acc-role.r-admin{color:var(--lime)}.acc-role.r-membro{color:var(--info)}.acc-role.r-leitor{color:var(--muted)}
+.p-bar{display:flex;height:9px;border-radius:999px;overflow:hidden;gap:2px;background:var(--surface-2)}
+.p-bar i{display:block;height:100%}
+.p-nums{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.p-nums div{background:var(--surface-2);border-radius:10px;padding:8px;text-align:center;display:grid;gap:1px}
+.p-nums b{font-family:var(--f-display);font-size:calc(19px * var(--fs));font-weight:700}
+.p-nums span{font-size:calc(11px * var(--fs));color:var(--muted)}
+.p-nums .bad b{color:var(--bad)}
+.p-meta{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:calc(12.5px * var(--fs));color:var(--muted)}
+.p-meta b{color:var(--ink)}
+.p-next{border:1px solid var(--line);background:var(--surface-2);border-radius:10px;padding:8px 10px;text-align:left;color:var(--ink);font-size:calc(13px * var(--fs));display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center;transition:border-color .2s}
+.p-next:hover{border-color:var(--accent)}
+.p-card .qa{justify-self:start}
+.p-none{border-style:dashed}
+.acc{justify-self:start;font-size:calc(11.5px * var(--fs));font-weight:600;padding:3px 9px;border-radius:999px;background:var(--surface-2);color:var(--muted)}
+.acc-ok{background:var(--ok-soft);color:var(--ok)}
+.acc-no{background:var(--warn-soft);color:var(--warn)}
+.acc-pend{background:var(--info-soft);color:var(--info)}
+.acc-box{display:grid;gap:6px}
+.acc-actions{display:grid;gap:8px;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:12px}
+.mini-epic .m-due{white-space:nowrap}
 @media (max-width:1000px){.m-grid{grid-template-columns:1fr}.m-feed{position:static}.m-dates{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:start}
 .col{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:12px;min-height:200px;transition:background .25s,border-color .25s}
@@ -607,6 +637,7 @@ main{position:relative;z-index:1}
     <nav class="tabs" id="tabs" role="tablist" aria-label="Vistas do painel">
       <span class="tab-pill" id="tab-pill" aria-hidden="true"></span>
       <button class="tab" role="tab" data-v="minha">Minha área<span class="tab-badge" id="tab-badge" hidden></span></button>
+      <button class="tab" role="tab" data-v="equipe" id="tab-equipe" hidden>Equipe</button>
       <button class="tab" role="tab" data-v="mapa">Mapa</button>
       <button class="tab" role="tab" data-v="linha">Linha do tempo</button>
       <button class="tab" role="tab" data-v="quadro">Quadro</button>
@@ -713,9 +744,9 @@ const LS_KEY="plano90:v1";
 
 /* ---------------- estado ---------------- */
 const S={config:null,phases:{},epics:{},sprints:{},loaded:{config:false,phases:false,epics:false,sprints:false},confirmed:false,timedOut:false};
-const VIEWS=["minha","mapa","linha","quadro","metricas","rituais"];
+const VIEWS=["minha","equipe","mapa","linha","quadro","metricas","rituais"];
 let view=(location.hash||"").slice(1)||(window.supabase?"minha":"mapa");
-if(!VIEWS.includes(view)||(view==="minha"&&!window.supabase)) view="mapa";
+if(!VIEWS.includes(view)||((view==="minha"||view==="equipe")&&!window.supabase)) view="mapa";
 let drawerState=null; // {type,id}
 let canWrite=true, me={id:"local"}, userApi=null, names={};
 
@@ -970,7 +1001,8 @@ function renderView(){
       </div>`;
     const b=$("#imp");if(b)b.onclick=importTemplate;return;
   }
-  const r={minha:renderMine,mapa:renderMap,linha:renderTimeline,quadro:renderBoard,metricas:renderMetrics,rituais:renderRituals}[view];
+  if(view==="equipe"&&typeof ACCESS!=="undefined"&&ACCESS==="membro")view="minha";
+  const r={minha:renderMine,equipe:renderTeam,mapa:renderMap,linha:renderTimeline,quadro:renderBoard,metricas:renderMetrics,rituais:renderRituals}[view];
   const changed=m.dataset.v!==view;m.dataset.v=view;
   r(m);
   if(changed&&m.firstElementChild){
@@ -1194,6 +1226,125 @@ function updateBadge(){
   b.hidden=!n;b.textContent=n;b.title=isAdmin()?n+" aguardando validação":n+" atrasada(s)";
 }
 
+/* ---- equipe ---- */
+let ACCOUNTS=null,accountsBusy=false,accountsErr=false;
+const ACCESS_LABEL={admin:"Admin",membro:"Membro",leitor:"Leitor"};
+const ACCESS_HELP={admin:"Edita o plano, atribui tarefas, aprova entregas e gerencia a equipe.",membro:"Vê o plano, muda o status das próprias tarefas, comenta e envia para validação.",leitor:"Só acompanha: vê o plano, as tarefas e a atividade, sem editar nem comentar."};
+async function invokeEquipe(body){
+  try{const {data,error}=await sb.functions.invoke("equipe-acesso",{body});
+    if(error){let msg="Não consegui completar a ação agora.";try{const j=await error.context.json();if(j&&j.error)msg=j.error;}catch(e){}return {error:msg};}
+    if(data&&data.error)return {error:data.error};return {data};}
+  catch(e){return {error:"Não consegui falar com o servidor. Tente de novo."};}
+}
+async function loadAccounts(force){
+  if(!isAdmin()||accountsBusy||(ACCOUNTS&&!force)||(accountsErr&&!force))return;accountsBusy=true;
+  const r=await invokeEquipe({action:"status"});accountsBusy=false;
+  if(r.data&&r.data.accounts){ACCOUNTS=r.data.accounts;accountsErr=false;schedule();}else{accountsErr=true;schedule();}
+}
+async function refreshTeam(){
+  const {data:tm}=await sb.rpc("team");if(!tm)return;TEAM={};
+  tm.forEach(r=>{TEAM[String(r.email).toLowerCase()]={name:r.name,role:r.role,access:r.access||"membro"};});schedule();
+}
+function personStats(email){
+  const cd=curDay();const ts=Object.values(S.tasks).filter(t=>t.assignee===email&&S.epics[t.epic_id]);
+  const by=k=>ts.filter(t=>t.status===k).length;
+  const done=ts.filter(t=>t.status==="done"),open=ts.filter(t=>t.status!=="done");
+  const late=open.filter(t=>t.status!=="review"&&cd!=null&&t.due_day!=null&&t.due_day<cd);
+  const onTime=done.filter(t=>{if(t.due_day==null||!startD()||!t.done_at)return true;const lim=dayDate(t.due_day);lim.setHours(23,59,59,999);return new Date(t.done_at)<=lim;}).length;
+  const last=Object.values(S.comments).filter(c=>String(c.author).toLowerCase()===email).sort((a,b)=>String(b.created_at).localeCompare(String(a.created_at)))[0];
+  const next=open.filter(t=>t.status!=="review").sort((a,b)=>(a.due_day??999)-(b.due_day??999))[0];
+  return {ts,total:ts.length,open:open.length,late:late.length,done:done.length,doing:by("doing"),review:by("review"),blocked:by("blocked"),queued:by("todo")+by("backlog"),onTime:done.length?onTime/done.length:null,last,next};
+}
+function accountBadge(email){
+  if(!isAdmin())return"";if(!ACCOUNTS)return accountsErr?`<span class="acc acc-wait">acesso não verificado</span>`:`<span class="acc acc-wait">verificando acesso…</span>`;
+  const a=ACCOUNTS[email];if(!a||!a.exists)return`<span class="acc acc-no">sem conta de acesso</span>`;
+  if(!a.last_sign_in_at)return`<span class="acc acc-pend">${a.invited_at&&!a.confirmed?"convite enviado":"conta criada · ainda não entrou"}</span>`;
+  return`<span class="acc acc-ok">entrou ${esc(ago(a.last_sign_in_at))}</span>`;
+}
+function renderTeam(m){
+  if(Store.mode!=="db"||ACCESS==="membro"){renderMine(m);return;}
+  if(isAdmin())loadAccounts();
+  const people=Object.entries(TEAM).sort((a,b)=>({admin:0,membro:1,leitor:2}[a[1].access]-{admin:0,membro:1,leitor:2}[b[1].access])||a[1].name.localeCompare(b[1].name));
+  const all=Object.values(S.tasks).filter(t=>S.epics[t.epic_id]);
+  const assigned=all.filter(t=>t.assignee).length,noOwner=all.filter(t=>!t.assignee&&t.status!=="done").length;
+  const cd=curDay();const lateAll=all.filter(t=>t.status!=="done"&&t.status!=="review"&&cd!=null&&t.due_day!=null&&t.due_day<cd).length;
+  const doneAll=all.filter(t=>t.status==="done");const ontimeAll=doneAll.length?doneAll.filter(t=>{if(t.due_day==null||!startD()||!t.done_at)return true;const lim=dayDate(t.due_day);lim.setHours(23,59,59,999);return new Date(t.done_at)<=lim;}).length/doneAll.length:null;
+  const seg=(n,tot,c,l)=>n?`<i style="flex:${n};background:${c}" title="${l}: ${n}"></i>`:"";
+  const card=([em,p])=>{const s=personStats(em);const isMe=em===myEmail();
+    return `<div class="panel p-card">
+      <div class="p-head">${avatar(em,42)}<div class="p-id"><b>${esc(p.name)}${isMe?' <small class="hint">(você)</small>':""}</b><span>${p.role&&p.role.toLowerCase()!==ACCESS_LABEL[p.access].toLowerCase()?esc(p.role)+" · ":""}<span class="acc-role r-${esc(p.access)}">${ACCESS_LABEL[p.access]}</span></span></div>
+        ${isAdmin()?`<button class="x p-edit" data-open="person:${esc(em)}" aria-label="Editar ${esc(p.name)}" title="Editar e gerenciar acesso">✎</button>`:""}</div>
+      ${p.access==="leitor"?`<p class="hint">Acompanha o painel sem tarefas atribuídas.</p>`:`
+      <div class="p-bar" aria-label="Distribuição das tarefas">${s.total?seg(s.done,s.total,"#5cc27e","Concluídas")+seg(s.review,s.total,"#ee7a45","Em validação")+seg(s.doing,s.total,"#f6a524","Em andamento")+seg(s.blocked,s.total,"#ef7b62","Bloqueadas")+seg(s.queued,s.total,"#4a4740","A fazer / backlog"):'<i style="flex:1;background:var(--surface-2)"></i>'}</div>
+      <div class="p-nums"><div><b>${s.open}</b><span>abertas</span></div><div class="${s.late?"bad":""}"><b>${s.late}</b><span>atrasadas</span></div><div><b>${s.review}</b><span>em validação</span></div><div><b>${s.done}</b><span>concluídas</span></div></div>
+      <div class="p-meta"><span>No prazo: <b>${s.onTime==null?"—":Math.round(s.onTime*100)+"%"}</b></span><span>Última atualização: <b>${s.last?esc(ago(s.last.created_at)):"—"}</b></span></div>
+      ${s.next?`<button class="p-next" data-open="task:${esc(s.next.id)}"><span class="hint">Próxima:</span> ${esc(s.next.title.length>70?s.next.title.slice(0,70)+"…":s.next.title)} <span class="m-due ${cd!=null&&s.next.due_day<cd?"late":""}">${esc(dueText(s.next))}</span></button>`:`<p class="hint">${s.total?"Tudo entregue.":"Nenhuma tarefa atribuída ainda."}</p>`}
+      <button class="qa" data-see="${esc(em)}">Ver tarefas no quadro</button>`}
+      ${accountBadge(em)}
+    </div>`;};
+  m.innerHTML=`<section class="view"><div class="view-head"><div><h2>Equipe</h2><p>Quem está com o quê, o que está atrasado e quem entrega no prazo.</p></div>${isAdmin()?`<button class="btn btn-lime" data-open="person:new">+ Adicionar pessoa</button>`:""}</div>
+    <div class="kpis">
+      <div class="kpi"><b class="mono">${people.length}</b><span>pessoas com acesso</span></div>
+      <div class="kpi"><b class="mono">${assigned}/${all.length}</b><span>tarefas com responsável</span></div>
+      <div class="kpi"><b class="mono" style="color:${lateAll?"var(--bad)":"inherit"}">${lateAll}</b><span>tarefas atrasadas</span></div>
+      <div class="kpi"><b class="mono">${ontimeAll==null?"—":Math.round(ontimeAll*100)+"%"}</b><span>entregas no prazo</span></div>
+    </div>
+    <div class="p-grid">${people.map(card).join("")}
+      ${noOwner?`<div class="panel p-card p-none"><div class="p-head">${avatar(null,42)}<div class="p-id"><b>Sem responsável</b><span>tarefas esperando dono</span></div></div><div class="p-nums"><div><b>${noOwner}</b><span>abertas</span></div></div><button class="qa qa-ok" data-see="none">Distribuir no quadro</button></div>`:""}
+    </div></section>`;
+  $$("[data-see]",m).forEach(b=>b.onclick=()=>{boardMode="tasks";boardPerson=b.dataset.see;go("quadro");});
+}
+function drawPerson(d,id){
+  const isNew=id==="new";const p=isNew?{name:"",role:"",access:"membro"}:TEAM[id];
+  if(!isAdmin()||(!isNew&&!p)){closeDrawer();return;}
+  const isMe=id===myEmail();const s=isNew?null:personStats(id);const a=ACCOUNTS&&ACCOUNTS[id];
+  d.innerHTML=`<div class="d-head"><div class="d-head-row"><div class="d-crumbs"><button data-go-team>Equipe</button><span>›</span><span>${isNew?"Nova pessoa":"Pessoa"}</span></div><button class="x" id="x" aria-label="Fechar">×</button></div>
+    <div class="epic-row">${isNew?"":avatar(id,36)}<h2 class="d-title" style="border:0">${isNew?"Adicionar pessoa à equipe":esc(p.name)}</h2></div></div>
+  <div class="d-body">
+    <div class="d-sec"><h4>Dados</h4><div class="fields">
+      <label class="field">Nome<input id="p-name" value="${esc(p.name)}" autocomplete="off"></label>
+      <label class="field">E-mail<input id="p-email" type="email" value="${isNew?"":esc(id)}" ${isNew?"":"readonly"} autocomplete="off"></label>
+      <label class="field">Cargo<input id="p-role" value="${esc(p.role||"")}" placeholder="Ex.: SDR, Closer, CS"></label>
+      <label class="field">Papel no painel<select id="p-access" ${isMe?"disabled":""}>${["membro","admin","leitor"].map(k=>`<option value="${k}" ${p.access===k?"selected":""}>${ACCESS_LABEL[k]}</option>`).join("")}</select></label>
+    </div><p class="hint" id="p-help">${ACCESS_HELP[p.access]}</p>
+    <button class="btn btn-lime" id="p-save" style="justify-self:start">${isNew?"Adicionar à equipe":"Salvar alterações"}</button></div>
+    ${isNew?`<p class="hint">Depois de adicionar, você cria o acesso dela aqui mesmo: com senha provisória ou com convite por e-mail.</p>`:`
+    <div class="d-sec"><h4>Acesso ao painel</h4>
+      <div class="acc-box">${accountBadge(id)}<p class="hint">${!ACCOUNTS?"Verificando…":a&&a.exists?(a.last_sign_in_at?"A pessoa já usa o painel. Se ela esqueceu a senha, defina uma nova provisória abaixo.":"A conta existe, mas a pessoa ainda não entrou."):"Ainda não há conta de login para este e-mail."}</p></div>
+      <div class="acc-actions">
+        <div class="add-row"><input class="inp" id="p-pass" type="text" autocomplete="off" placeholder="Senha provisória (mín. 8 caracteres)"><button class="btn" id="p-create">${a&&a.exists?"Redefinir senha":"Criar acesso"}</button></div>
+        <p class="hint">Passe a senha para a pessoa na hora. Ela entra com o e-mail e essa senha e pode trocar em <b>Trocar senha</b>.</p>
+        ${a&&a.exists?"":`<button class="btn btn-quiet" id="p-invite" style="justify-self:start">✉ Enviar convite por e-mail</button><p class="hint">O plano gratuito do Supabase envia poucos e-mails por hora; a senha provisória é mais garantida.</p>`}
+      </div></div>
+    <div class="d-sec"><h4>Tarefas (${s.total})</h4><div class="mini-epics">${s.ts.sort((x,y)=>(x.due_day??999)-(y.due_day??999)).map(t=>`<button class="mini-epic" data-open="task:${esc(t.id)}"><b>${esc(t.title)}</b><span class="m-due">${esc(dueText(t))}</span><span class="chip h-${t.status==="review"?"risk":taskHealth(t)}"><i></i>${ST[t.status]}</span></button>`).join("")||'<p class="hint">Nenhuma tarefa atribuída.</p>'}</div></div>
+    ${isMe?"":`<div class="d-sec" id="p-del-zone"><button class="btn btn-quiet" id="p-del" style="color:var(--bad);justify-self:start">Remover da equipe</button></div>`}`}
+  </div>`;
+  $("#x",d).onclick=closeDrawer;
+  const gt=$("[data-go-team]",d);if(gt)gt.onclick=()=>{closeDrawer();go("equipe");};
+  $("#p-access",d).onchange=ev=>{$("#p-help",d).textContent=ACCESS_HELP[ev.target.value];};
+  $("#p-save",d).onclick=async()=>{
+    const email=($("#p-email",d).value||"").trim().toLowerCase(),name=$("#p-name",d).value.trim(),role=$("#p-role",d).value.trim(),acc=$("#p-access",d).value;
+    if(!name){toast("Informe o nome.");return;}if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){toast("Informe um e-mail válido.");return;}
+    if(isNew&&TEAM[email]){toast("Esse e-mail já está na equipe.");return;}
+    const b=$("#p-save",d);b.disabled=true;
+    const {error}=await sb.rpc("team_upsert",{p_email:email,p_name:name,p_role:role,p_access:isMe?"admin":acc});b.disabled=false;
+    if(error){toast(error.message||"Não consegui salvar.");return;}
+    await refreshTeam();ACCOUNTS=null;loadAccounts(true);toast(isNew?name+" entrou na equipe. Agora crie o acesso.":"Dados salvos.");
+    drawerState={type:"person",id:email};renderDrawer();
+  };
+  if(isNew)return;
+  $("#p-create",d).onclick=async()=>{const pw=$("#p-pass",d).value;if(pw.length<8){toast("A senha provisória precisa ter pelo menos 8 caracteres.");return;}
+    const b=$("#p-create",d);b.disabled=true;const r=await invokeEquipe({action:"create",email:id,password:pw});b.disabled=false;
+    if(r.error){toast(r.error);return;}$("#p-pass",d).value="";toast(r.data.updated?"Senha redefinida. Passe a nova senha para "+p.name+".":"Acesso criado. Passe a senha para "+p.name+".");ACCOUNTS=null;loadAccounts(true);};
+  const inv=$("#p-invite",d);if(inv)inv.onclick=async()=>{inv.disabled=true;const r=await invokeEquipe({action:"invite",email:id,redirectTo:location.origin+location.pathname});inv.disabled=false;
+    if(r.error){toast(r.error);return;}toast("Convite enviado para "+id+".");ACCOUNTS=null;loadAccounts(true);};
+  const del=$("#p-del",d);if(del)del.onclick=()=>{$("#p-del-zone",d).innerHTML=`<div class="confirm"><span>Remover ${esc(p.name)} da equipe? A pessoa perde o acesso, a conta de login é apagada e as ${s.open} tarefa(s) aberta(s) ficam sem responsável. Os comentários continuam no histórico.</span><button class="btn btn-danger" id="p-del-y">Remover</button><button class="btn" id="p-del-n">Cancelar</button></div>`;
+    $("#p-del-n",d).onclick=()=>renderDrawer();
+    $("#p-del-y",d).onclick=async()=>{const {error}=await sb.rpc("team_remove",{p_email:id});if(error){toast(error.message||"Não consegui remover.");return;}
+      await invokeEquipe({action:"remove",email:id});Object.values(S.tasks).forEach(t=>{if(t.assignee===id&&t.status!=="done")t.assignee=null;});
+      await refreshTeam();ACCOUNTS=null;loadAccounts(true);closeDrawer();toast(p.name+" saiu da equipe.");};};
+}
+
 /* ---- métricas ---- */
 function renderMetrics(m){
   const t=totals(),cd=curDay(),T=TOTAL();
@@ -1281,7 +1432,7 @@ function closeDrawer(){drawerState=null;$("#drawer").classList.remove("open");$(
 function renderDrawer(first){
   const d=$("#drawer");const st=drawerState;if(!st)return;
   const scroll=$(".d-body",d)?$(".d-body",d).scrollTop:0;
-  if(st.type==="epic")drawEpic(d,st.id);else if(st.type==="phase")drawPhase(d,st.id);else if(st.type==="task")drawTask(d,st.id);else drawSprint(d,st.id);
+  if(st.type==="epic")drawEpic(d,st.id);else if(st.type==="phase")drawPhase(d,st.id);else if(st.type==="task")drawTask(d,st.id);else if(st.type==="person")drawPerson(d,st.id);else drawSprint(d,st.id);
   if(!first&&$(".d-body",d))$(".d-body",d).scrollTop=scroll;
   resolveNames();
 }
@@ -1654,6 +1805,7 @@ async function start(){
   ACCESS=(TEAM[email.toLowerCase()]&&TEAM[email.toLowerCase()].access)||"leitor";
   canWrite=ACCESS==="admin";document.body.classList.toggle("ro",!canWrite);
   if(ACCESS==="membro"){boardPerson="me";}
+  $("#tab-equipe").hidden=ACCESS==="membro";requestAnimationFrame(movePill);
   fillUser(email);
   $("#acct").hidden=false;setSync("ok");
   if(CAME_FROM_LINK){$("#auth").classList.add("modal");authView("password","Bem-vindo! Crie uma senha para entrar mais rápido das próximas vezes.",true);}
