@@ -1336,9 +1336,13 @@ async function loadAccounts(force){
   const r=await invokeEquipe({action:"status"});accountsBusy=false;
   if(r.data&&r.data.accounts){ACCOUNTS=r.data.accounts;accountsErr=false;schedule();}else{accountsErr=true;schedule();}
 }
+function teamRow(r){return{name:r.name,role:r.role,access:r.access||"membro",uid:r.uid||null,last_seen_at:r.last_seen_at||null,last_view:r.last_view||"",last_away:!!r.last_away};}
 async function refreshTeam(){
-  const {data:tm}=await sb.rpc("team");if(!tm)return;TEAM={};
-  tm.forEach(r=>{TEAM[String(r.email).toLowerCase()]={name:r.name,role:r.role,access:r.access||"membro",uid:r.uid||null,last_seen_at:r.last_seen_at||null};});schedule();
+  const {data:tm}=await sb.rpc("team");if(!tm)return;
+  const sig=T=>JSON.stringify(Object.keys(T).sort().map(k=>[k,T[k].name,T[k].role,T[k].access]));
+  const before=sig(TEAM);TEAM={};
+  tm.forEach(r=>{TEAM[String(r.email).toLowerCase()]=teamRow(r);});
+  if(sig(TEAM)!==before)schedule();else{renderOnline();if(view==="equipe")schedule();}
 }
 function personStats(email){
   const cd=curDay();const ts=Object.values(S.tasks).filter(t=>tHas(t,email)&&S.epics[t.epic_id]);
@@ -1854,35 +1858,46 @@ function drawTask(d,id){
 }
 
 
-/* ---------------- quem está online ---------------- */
-let ONLINE={},presCh=null;
+/* ---------------- quem está online (só admin vê) ---------------- */
+let lastBeat=0,beatT=null,teamTick=0;
 const VIEW_LABEL={minha:"Início",equipe:"Equipe",mapa:"Plano",linha:"Linha do tempo",quadro:"Quadro",metricas:"Métricas",rituais:"Rituais"};
-function presenceOf(email){const p=TEAM[email];if(!p)return null;if(email===myEmail())return{away:document.hidden,view};return p.uid&&ONLINE[p.uid]?ONLINE[p.uid]:null;}
+const canSeeOnline=()=>Store.mode==="db"&&typeof ACCESS!=="undefined"&&ACCESS==="admin";
+function presenceOf(email){
+  const p=TEAM[email];if(!p)return null;
+  if(email===myEmail())return{away:document.hidden,view};
+  if(!p.last_seen_at)return null;
+  const age=Date.now()-new Date(p.last_seen_at).getTime();
+  if(age<80000&&!p.last_away)return{away:false,view:p.last_view||""};
+  if(age<150000)return{away:true,view:p.last_view||""};
+  return null;
+}
 function presenceText(email){
+  if(!canSeeOnline())return"";
   const o=presenceOf(email);const p=TEAM[email]||{};
   if(o&&!o.away)return"online agora"+(o.view&&VIEW_LABEL[o.view]?" · em "+VIEW_LABEL[o.view]:"");
   if(o&&o.away)return"ausente · painel aberto em segundo plano";
   return p.last_seen_at?"visto "+ago(p.last_seen_at):"ainda não entrou";
 }
-function presenceDot(email){const o=presenceOf(email);return `<i class="pdot ${o?(o.away?"away":"on"):"off"}" aria-hidden="true"></i>`;}
-function trackPresence(){if(presCh&&presCh.state==="joined")presCh.track({view,away:document.hidden,at:new Date().toISOString()}).catch(()=>{});}
-async function startPresence(){
+function presenceDot(email){if(!canSeeOnline())return"";const o=presenceOf(email);return `<i class="pdot ${o?(o.away?"away":"on"):"off"}" aria-hidden="true"></i>`;}
+function beat(force){
+  if(Store.mode!=="db"||!sb)return;
+  const now=Date.now();
+  if(!force&&now-lastBeat<10000){clearTimeout(beatT);beatT=setTimeout(()=>beat(true),10000-(now-lastBeat));return;}
+  clearTimeout(beatT);lastBeat=now;
+  sb.rpc("touch_presence",{p_view:view,p_away:document.hidden}).then(()=>{},()=>{});
+}
+function trackPresence(){beat(false);}
+function startPresence(){
   if(!session||!session.user)return;
-  try{if(sb.realtime&&sb.realtime.setAuth)await sb.realtime.setAuth(session.access_token);}catch(e){}
-  presCh=sb.channel("presenca",{config:{private:true,presence:{key:session.user.id}}});
-  presCh.on("presence",{event:"sync"},()=>{
-    const st=presCh.presenceState();ONLINE={};
-    Object.entries(st).forEach(([k,arr])=>{const act=arr.filter(x=>!x.away);const pick=act[act.length-1]||arr[arr.length-1]||{};ONLINE[k]={away:!act.length,view:pick.view||""};});
-    renderOnline();if(view==="equipe")schedule();
-  });
-  presCh.subscribe(st=>{if(st==="SUBSCRIBED")trackPresence();});
-  sb.rpc("touch_presence").then(()=>{},()=>{});
-  setInterval(()=>{if(!document.hidden)sb.rpc("touch_presence").then(()=>{},()=>{});refreshTeam();},120000);
-  document.addEventListener("visibilitychange",()=>{trackPresence();if(!document.hidden)sb.rpc("touch_presence").then(()=>{},()=>{});renderOnline();});
+  beat(true);
+  setInterval(()=>beat(true),30000);
+  setInterval(()=>{teamTick++;if(document.hidden)return;if(canSeeOnline()||teamTick%6===0)refreshTeam();},20000);
+  document.addEventListener("visibilitychange",()=>{beat(true);if(!document.hidden&&canSeeOnline())refreshTeam();renderOnline();});
   renderOnline();
 }
 function renderOnline(){
-  const w=$("#online");if(!w||Store.mode!=="db")return;
+  const w=$("#online");if(!w)return;
+  if(!canSeeOnline()){w.hidden=true;w.innerHTML="";return;}
   const open=!!($("#on-menu")&&!$("#on-menu").hidden);
   const all=Object.keys(TEAM);
   const rank=em=>{const o=presenceOf(em);return o?(o.away?1:0):2;};
@@ -1951,7 +1966,7 @@ async function start(){
   if(error||!ok){$("#denied-email").textContent=email;authView("denied");return;}
   Store.mode="db";
   Store.db={doc:k=>{const p=k.split("/");return{set:d=>sbSet(p[0],p[1],d),delete:()=>sbDel(p[0],p[1])};}};
-  try{const {data:tm}=await sb.rpc("team");TEAM={};(tm||[]).forEach(r=>{TEAM[String(r.email).toLowerCase()]={name:r.name,role:r.role,access:r.access||"membro",uid:r.uid||null,last_seen_at:r.last_seen_at||null};});}catch(e){}
+  try{const {data:tm}=await sb.rpc("team");TEAM={};(tm||[]).forEach(r=>{TEAM[String(r.email).toLowerCase()]=teamRow(r);});}catch(e){}
   ACCESS=(TEAM[email.toLowerCase()]&&TEAM[email.toLowerCase()].access)||"leitor";
   canWrite=ACCESS==="admin";document.body.classList.toggle("ro",!canWrite);
   if(ACCESS==="membro"){boardPerson="me";}
